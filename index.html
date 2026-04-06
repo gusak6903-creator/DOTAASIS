@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOTAASIS | Counter-Pick Helper 7.41a</title>
+    <style>
+        :root {
+            --bg: #0f0f12;
+            --card-bg: #1c1c21;
+            --accent: #a335ee;
+            --text: #e1e1e1;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { color: var(--accent); letter-spacing: 2px; }
+
+        /* Поиск */
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            display: block;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #25252b;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .hero-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(163, 53, 238, 0.3);
+        }
+
+        .hero-card img {
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        /* Метка патча */
+        .patch-note {
+            background: #2b1d3d;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #d199ff;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>DOTAASIS <span class="patch-note">Patch 7.41a</span></h1>
+    <p>Твой помощник по контрпикам и предметам</p>
+    <input type="text" class="search-box" id="heroSearch" placeholder="Введите имя героя (например, Anti-Mage)...">
+</header>
+
+<div class="grid" id="heroGrid">
+    </div>
+
+<script>
+    // База данных героев (для примера добавил нескольких, ты сможешь расширить список)
+    const heroes = [
+        { name: "Anti-Mage", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/antimage.png", counter: "Meepo, Legion Commander, Disruptor" },
+        { name: "Pudge", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png", counter: "Lifestealer, Slark, Timbersaw" },
+        { name: "Phantom Assassin", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phantom_assassin.png", counter: "Axe, Morphling, Tinker" },
+        { name: "Juggernaut", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png", counter: "Slardar, Outworld Destroyer" }
+        // Сюда можно дописать всех 120+ героев по аналогии
+    ];
+
+    const grid = document.getElementById('heroGrid');
+    const searchInput = document.getElementById('heroSearch');
+
+    function displayHeroes(filter = "") {
+        grid.innerHTML = "";
+        const filtered = heroes.filter(h => h.name.toLowerCase().includes(filter.toLowerCase()));
+        
+        filtered.forEach(hero => {
+            const card = document.createElement('div');
+            card.className = 'hero-card';
+            card.innerHTML = `
+                <img src="${hero.img}" alt="${hero.name}">
+                <div>${hero.name}</div>
+            `;
+            card.onclick = () => alert(`Контрпики для ${hero.name}: ${hero.counter}`);
+            grid.appendChild(card);
+        });
+    }
+
+    searchInput.oninput = (e) => displayHeroes(e.target.value);
+
+    // Показываем всех героев при загрузке
+    displayHeroes();
+</script>
+
+</body>
+</html>
