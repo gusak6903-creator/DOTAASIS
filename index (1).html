@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOTA 2 — Counterpick Oracle</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505;
+    --bg2: #0a0a0f;
+    --bg3: #0d0d18;
+    --neon: #00f2ff;
+    --neon2: #0066ff;
+    --neon3: #7b2fff;
+    --red: #ff2d55;
+    --gold: #ffd700;
+    --text: #c8d8e8;
+    --text-dim: #5a7a8a;
+    --glass: rgba(0, 242, 255, 0.04);
+    --glass-border: rgba(0, 242, 255, 0.15);
+    --str: #e84c3d;
+    --agi: #2ecc71;
+    --int: #3498db;
+    --all: #9b59b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,242,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,242,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 70% 20%, rgba(0,102,255,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(0,242,255,0.04) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,5,5,0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0 2rem;
+  }
+
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.2em;
+    color: var(--neon);
+    text-shadow: 0 0 20px rgba(0,242,255,0.6), 0 0 40px rgba(0,242,255,0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .logo span { color: var(--text-dim); font-weight: 400; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    flex: 1;
+    max-width: 420px;
+    position: relative;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 0.5rem 1rem 0.5rem 2.6rem;
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-dim); }
+  .search-wrap input:focus {
+    border-color: var(--neon);
+    box-shadow: 0 0 16px rgba(0,242,255,0.15);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    pointer-events: none;
+    font-size: 0.9rem;
+  }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 3px;
+    padding: 0.35rem 0.8rem;
+    color: var(--text-dim);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all .2s;
+    text-transform: uppercase;
+  }
+
+  .filter-btn:hover { color: var(--text); border-color: rgba(0,242,255,0.35); }
+
+  .filter-btn.active { border-color: currentColor; }
+  .filter-btn[data-attr="all"].active  { color: var(--neon); box-shadow: 0 0 10px rgba(0,242,255,0.2); }
+  .filter-btn[data-attr="str"].active  { color: var(--str); box-shadow: 0 0 10px rgba(232,76,61,0.25); }
+  .filter-btn[data-attr="agi"].active  { color: var(--agi); box-shadow: 0 0 10px rgba(46,204,113,0.25); }
+  .filter-btn[data-attr="int"].active  { color: var(--int); box-shadow: 0 0 10px rgba(52,152,219,0.25); }
+  .filter-btn[data-attr="universal"].active { color: var(--all); box-shadow: 0 0 10px rgba(155,89,182,0.25); }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* ── STATUS BAR ── */
+  #status-bar {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    min-height: 2.5rem;
+  }
+
+  #status-bar .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+    margin-right: 0.5rem;
+    animation: blink 1.4s infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  #hero-count {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  #hero-count strong { color: var(--neon); }
+
+  /* ── GRID ── */
+  #hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  /* ── HERO CARD ── */
+  .hero-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(0,242,255,0.08);
+    background: var(--bg2);
+    transition: transform .25s ease, border-color .25s, box-shadow .25s;
+    animation: cardIn .4s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .hero-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: var(--neon);
+    box-shadow: 0 0 24px rgba(0,242,255,0.25), 0 8px 32px rgba(0,0,0,0.6);
+    z-index: 2;
+  }
+
+  .hero-card img {
+    width: 100%;
+    aspect-ratio: 256/144;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.85);
+    transition: filter .25s;
+  }
+
+  .hero-card:hover img { filter: brightness(1); }
+
+  .card-info {
+    padding: 0.55rem 0.7rem 0.65rem;
+  }
+
+  .card-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-attr {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+  }
+
+  .attr-str { color: var(--str); }
+  .attr-agi { color: var(--agi); }
+  .attr-int { color: var(--int); }
+  .attr-universal { color: var(--all); }
+
+  .has-data-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+  }
+
+  /* ── MODAL OVERLAY ── */
+  #modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn .2s ease;
+  }
+
+  #modal-overlay.open { display: flex; }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── MODAL ── */
+  #modal {
+    background: rgba(10, 12, 22, 0.97);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 60px rgba(0,242,255,0.12), 0 0 120px rgba(0,102,255,0.08);
+    animation: modalIn .25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon2) transparent;
+  }
+
+  @keyframes modalIn {
+    from { opacity:0; transform: scale(0.94) translateY(20px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header {
+    position: relative;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+    padding: 1.5rem 1.5rem 1.2rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(0,102,255,0.06), rgba(0,242,255,0.03));
+  }
+
+  .modal-hero-img {
+    width: 180px;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border);
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,242,255,0.1);
+  }
+
+  .modal-hero-info { flex: 1; }
+
+  .modal-hero-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0,242,255,0.4);
+    line-height: 1.1;
+  }
+
+  .modal-hero-attr {
+    margin-top: 0.4rem;
+    display: inline-block;
+  }
+
+  .modal-roles {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .no-data-notice {
+    margin-top: 0.8rem;
+    padding: 0.45rem 0.8rem;
+    background: rgba(255,45,85,0.08);
+    border: 1px solid rgba(255,45,85,0.25);
+    border-radius: 3px;
+    font-size: 0.78rem;
+    color: var(--red);
+    display: none;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+
+  .modal-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  @media (max-width: 560px) {
+    .modal-body { grid-template-columns: 1fr; }
+    .modal-hero-img { width: 120px; }
+    .modal-hero-name { font-size: 1.5rem; }
+  }
+
+  .modal-section {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+  }
+
+  .modal-section.full-width { grid-column: 1 / -1; }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 14px;
+    background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+    border-radius: 2px;
+  }
+
+  /* counter list */
+  .counter-list { list-style: none; }
+
+  .counter-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .counter-list li:last-child { border-bottom: none; }
+
+  .counter-list .num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    width: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* item pill */
+  .item-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0,102,255,0.12);
+    border: 1px solid rgba(0,102,255,0.3);
+    border-radius: 3px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin: 0.2rem 0.2rem 0 0;
+    color: #a8c8ff;
+    transition: all .2s;
+  }
+
+  .item-pill:hover {
+    border-color: var(--neon2);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0,102,255,0.3);
+  }
+
+  .item-pill .icon { font-size: 0.9rem; }
+
+  /* tip */
+  .tip-text {
+    font-size: 0.84rem;
+    line-height: 1.65;
+    color: var(--text);
+    border-left: 2px solid var(--neon2);
+    padding-left: 0.9rem;
+  }
+
+  /* ── EMPTY STATE ── */
+  #empty-state {
+    display: none;
+    text-align: center;
+    padding: 5rem 2rem;
+  }
+
+  #empty-state .es-icon { font-size: 3rem; margin-bottom: 1rem; }
+  #empty-state h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; letter-spacing: 0.1em; color: var(--text-dim); }
+
+  /* ── LOADING SKELETON ── */
+  .skeleton-card {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(0,242,255,0.06);
+    background: var(--bg2);
+  }
+
+  .skeleton-img {
+    width: 100%;
+    aspect-ratio: 256/144;
+    background: linear-gradient(90deg, #0d0d18 25%, #141428 50%, #0d0d18 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-text {
+    height: 12px;
+    margin: 10px 10px 6px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #0d0d18 25%, #141428 50%, #0d0d18 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-text.short { width: 50%; margin-bottom: 12px; }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--neon2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">ORACLE<span> // DOTA 2</span></div>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search-input" placeholder="Поиск героя..." autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-attr="all">Все</button>
+      <button class="filter-btn" data-attr="str">💪 СИЛ</button>
+      <button class="filter-btn" data-attr="agi">⚡ ЛОВ</button>
+      <button class="filter-btn" data-attr="int">🔮 ИНТ</button>
+      <button class="filter-btn" data-attr="universal">✦ УНИ</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="status-bar"><span class="dot"></span> Загрузка данных с OpenDota API...</div>
+  <div id="hero-count"></div>
+  <div id="hero-grid"></div>
+  <div id="empty-state">
+    <div class="es-icon">🔍</div>
+    <h3>Герои не найдены</h3>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-header" id="modal-header">
+      <img id="modal-img" class="modal-hero-img" src="" alt="">
+      <div class="modal-hero-info">
+        <div class="modal-hero-name" id="modal-name"></div>
+        <div class="modal-hero-attr" id="modal-attr"></div>
+        <div class="modal-roles" id="modal-roles"></div>
+        <div class="no-data-notice" id="no-data-notice">⚠ Детальной аналитики по этому герою пока нет в базе</div>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// БАЗА ЗНАНИЙ — контрпики + предметы + советы
+// ═══════════════════════════════════════════════════════════
+const KNOWLEDGE_BASE = {
+  // ── СИЛАЧИ ──
+  "axe": {
+    counters: ["Slark", "Bristleback", "Phantom Lancer"],
+    items: ["BKB (Black King Bar)", "Euls Scepter", "Linken's Sphere"],
+    tip: "Axe живёт за счёт Battle Hunger и Counter Helix. BKB полностью отключает его харасс. Eul позволяет снять Battle Hunger. Держитесь вместе — разделённые герои — лёгкая добыча для Culling Blade."
+  },
+  "bristleback": {
+    counters: ["Silver Edge", "Bloodseeker", "Ancient Apparition"],
+    items: ["Silver Edge", "Ancient Apparition (Ульт)", "Diffusal Blade"],
+    tip: "Bristle неуязвим спереди — всегда атакуйте с боков или сзади. Silver Edge отключает его пассивный Bristleback. AA Ульт не даёт ему хилиться квилами."
+  },
+  "centaur_warrunner": {
+    counters: ["Rubick", "Pugna", "Dazzle"],
+    items: ["Euls Scepter", "Force Staff", "Aghanim's Shard (AA)"],
+    tip: "Centaur крайне опасен с Blink+Stampede. Eul или Hex прерывают его инициацию. Rubick может украсть Stampede и ускорить союзников. Избегайте стоять рядом с союзниками — это делает его AoE смертоносным."
+  },
+  "dragon_knight": {
+    counters: ["Ancient Apparition", "Diffusal Blade", "Oracle"],
+    items: ["Ancient Apparition (Ульт)", "Diffusal Blade", "Blink Dagger (чтобы выйти)"],
+    tip: "DK — осадный герой с огромным HP-пулом. AA отменяет его реген. В Dragon Form он получает зачаровывание — Fire Breath можно избежать, не стоя в ближнем бою. Кайтинг очень эффективен."
+  },
+  "earth_spirit": {
+    counters: ["BKB", "Pugna", "Outworld Destroyer"],
+    items: ["BKB (Black King Bar)", "Force Staff", "Linkens Sphere"],
+    tip: "Earth Spirit зависит от Remnant — уничтожайте их сразу. BKB блокирует весь его CC. Он слабее без камней, поэтому атакуйте активно в начале игры, пока он не купил Blink."
+  },
+  "earthshaker": {
+    counters: ["Blink Dagger (чтобы инициировать)", "Faceless Void", "Rubick"],
+    items: ["BKB", "Force Staff (чтобы разделиться)", "Aghanim's Scepter"],
+    tip: "Echo Slam убийственен по кластерам — никогда не стойте рядом. Rubick может украсть Fissure и заблокировать вас. BKB делает Echo Slam бесполезным против вас."
+  },
+  "slardar": {
+    counters: ["Invisible Heroes (Riki)", "Bloodseeker", "Clinkz"],
+    items: ["BKB", "Euls Scepter", "Force Staff"],
+    tip: "Slardar отлично контрит инвиз-героев своим Amplify Damage. Его ульт снимает инвиз. Покупайте BKB против его Bash. Высокая мобильность поможет убежать от Bash."
+  },
+  "tidehunter": {
+    counters: ["Rubick", "Faceless Void", "Magnus"],
+    items: ["BKB", "Blink Dagger (для побега)", "Force Staff"],
+    tip: "Ravage — один из самых мощных ультов. BKB полностью его отменяет. Rubick крадёт Ravage и использует против команды Tide. Faceless Void ловит его в Chronosphere."
+  },
+  "underlord": {
+    counters: ["Pugna", "Ancient Apparition", "Silencer"],
+    items: ["Ancient Apparition (Ульт)", "Diffusal Blade", "Euls Scepter"],
+    tip: "Underlord зависит от регена Atrophy Aura и стека в командных боях. AA отменяет его реген. Silencer блокирует каст Firestorm. Покидайте зону его Firestorm сразу."
+  },
+  "wraith_king": {
+    counters: ["Ancient Apparition", "Pugna", "Phantom Lancer"],
+    items: ["Ancient Apparition (Ульт)", "Diffusal Blade", "Necronomicon"],
+    tip: "WK возрождается один раз — AA отменяет его реген при воскрешении, делая его легко добиваемым. Reincarnation можно избежать уйдя после первой смерти — вернитесь к добиванию через 3 секунды."
+  },
+  // ── ЛОВКАЧИ ──
+  "phantom_assassin": {
+    counters: ["Bloodseeker", "Ancient Apparition", "Viper"],
+    items: ["Monkey King Bar", "Radiance", "Heaven's Halberd"],
+    tip: "PA зависит от Critical Strike и Blur (уклонение). MKB полностью отключает её Blur. Heaven's Halberd дизармит и снимает уклонение. Bloodseeker видит её сквозь инвиз и ограничивает передвижение."
+  },
+  "anti_mage": {
+    counters: ["Nyx Assassin", "Pugna", "Bane"],
+    items: ["Necronomicon", "Force Staff (чтобы не дать фармить)", "Orchid Malevolence"],
+    tip: "AM — поздний гиперкэрри. Давите сильно в ранней игре, пока он не собрал Battle Fury. Pugna's Decrepify делает его неспособным атаковать. Bane лочит его Nightmare/Fiend's Grip. Никогда не давайте ему спокойного фарма."
+  },
+  "clinkz": {
+    counters: ["Slardar", "Bounty Hunter", "Witch Doctor"],
+    items: ["Sentry Ward", "Gem of True Sight", "Force Staff"],
+    tip: "Clinkz живёт в инвизе. Gem/Sentry полностью его контрит. Slardar снимает инвиз ультом. Не разделяйтесь — он убивает по одному за раз. BKB против его Burning Barrage."
+  },
+  "drow_ranger": {
+    counters: ["Phantom Lancer", "Nyx Assassin", "Anti-Mage"],
+    items: ["BKB", "Blink Dagger (для инициации)", "Force Staff"],
+    tip: "Drow слабее в ближнем бою — Blink прямо в неё. Её аура Precision Aura пропадает при урону, поэтому агрессивный инициатор контрит всю команду. BKB против её Gust (разрыв)."
+  },
+  "juggernaut": {
+    counters: ["Omniknight", "Abaddon", "Oracle"],
+    items: ["Nullifier", "Euls Scepter", "Heaven's Halberd"],
+    tip: "Omnislash неуязвима, но Omni/Abaddon могут полностью поглотить урон. Nullifier снимает Blade Fury. Eul снимает себя во время Omnislash (прерывает таргет). Heaven's Halberd дизармит."
+  },
+  "luna": {
+    counters: ["Nyx Assassin", "Puck", "Storm Spirit"],
+    items: ["BKB", "Force Staff (побег)", "Hood of Defiance"],
+    tip: "Luna крайне хрупка. Агрессивная ранняя игра убивает её сноуболл. Mana Burn убирает её ман для ульта. Nyx Assassin отражает её ауру своим Carapace. В командных боях держитесь рассредоточенно — её ульт наносит огромный AoE."
+  },
+  "morphling": {
+    counters: ["Silencer", "Doom", "Bane"],
+    items: ["BKB", "Hex", "Orchid Malevolence"],
+    tip: "Morph переключает силу и ловкость. Молчание (Silencer) лишает его возможности использовать Waveform и морфинг. Doom блокирует все его активные способности. Orchid предотвращает эскейп через Waveform."
+  },
+  "phantom_lancer": {
+    counters: ["Gyrocopter", "Alchemist", "Medusa"],
+    items: ["Radiance", "Eye of Skadi", "Mjollnir"],
+    tip: "PL создаёт иллюзии — Radiance наносит AoE урон всем. Скади замедляет все иллюзии (проц на каждой). Gyrocopter с Flak Cannon уничтожает всю армию. Splash-урон обязателен."
+  },
+  "riki": {
+    counters: ["Slardar", "Bounty Hunter", "Zeus"],
+    items: ["Sentry Ward", "Gem of True Sight", "Dust of Appearance"],
+    tip: "Riki полностью зависит от инвиза. Gem или Sentry полностью нейтрализуют его. Zeus Thundergods Wrath наносит ему урон сквозь инвиз. Всегда имейте Dust/Sentry на поздних стадиях."
+  },
+  "slark": {
+    counters: ["Ancient Apparition", "Bloodseeker", "Bounty Hunter"],
+    items: ["Heaven's Halberd", "Euls Scepter", "Ghost Scepter"],
+    tip: "Slark с Shadow Dance — в инвизе с реген. AoE-спеллы контрят его реген. Bloodseeker видит его через Shadow Dance. Ghost Scepter делает вас невосприимчивым к физическому урону Slark."
+  },
+  "spectre": {
+    counters: ["Doom", "Pugna", "Ancient Apparition"],
+    items: ["Diffusal Blade", "Ancient Apparition (Ульт)", "Euls Scepter"],
+    tip: "Spectre зависит от Desolate (урона по одиночным). Всегда держитесь вместе — не давайте ей инициировать одного. Pugna's Decrepify делает её неспособной атаковать. Diffusal Blade сжигает её ману."
+  },
+  "troll_warlord": {
+    counters: ["Doom", "Silencer", "Bane"],
+    items: ["Heaven's Halberd", "BKB", "Hex"],
+    tip: "Troll — атакующий керри с огромной скоростью атаки. Heaven's Halberd дизармит его на 4 секунды, делая его бесполезным. Doom блокирует его Battle Trance. Hex/Silencer лишают ульта."
+  },
+  "ursa": {
+    counters: ["Doom", "Oracle", "Phantom Lancer"],
+    items: ["BKB", "Janggo of Endurance (кайтинг)", "Heaven's Halberd"],
+    tip: "Ursa убивает любого за секунды с Fury Swipes. Кайтинг — лучшая защита. Oracle's Fortune's End чистит стаки Fury Swipes. BKB позволяет ему игнорировать весь CC — покупайте контр на BKB."
+  },
+  "void_spirit": {
+    counters: ["Silencer", "Orchid", "Bane"],
+    items: ["Orchid Malevolence", "Hex", "BKB"],
+    tip: "Void Spirit — мобильный боец-маг. Orchid молчанием предотвращает весь его escape. Hex останавливает Resonant Pulse. Bane лочит его. Фокусируйте его быстро — без заклинаний он беззащитен."
+  },
+  // ── ИНТЕЛЛЕКТУАЛЫ ──
+  "invoker": {
+    counters: ["Silencer", "Nyx Assassin", "Doom"],
+    items: ["Orchid Malevolence", "BKB", "Hex"],
+    tip: "Invoker живёт заклинаниями. Silencer Global Silence полностью выключает его. Orchid Malevolence молчание лишает его возможности комбить. BKB блокирует большинство его спеллов. Давите до Blink Dagger."
+  },
+  "lina": {
+    counters: ["BKB", "Pugna (Decrepify)", "Rubick"],
+    items: ["BKB", "Linken's Sphere", "Euls Scepter"],
+    tip: "Lina — хрупкий стеклянный пушка с огромным уроном. BKB блокирует весь её CC. Rubick может украсть Dragon Slave или Laguna Blade. Линкен блокирует Laguna Blade."
+  },
+  "lion": {
+    counters: ["BKB", "Linken's Sphere", "Blink Dagger"],
+    items: ["BKB", "Linken's Sphere", "Force Staff"],
+    tip: "Lion — ССовый бурст-саппорт. BKB полностью его контрит. Linken's Sphere блокирует Hex или Earth Spike. Агрессивный Blink на него убивает его на месте — у него мало HP."
+  },
+  "pugna": {
+    counters: ["BKB", "Doom", "Silencer"],
+    items: ["BKB", "Nullifier", "Euls Scepter"],
+    tip: "Pugna Nether Ward урезает ману при касте. BKB обходит Decrepify. Nullifier снимает его щиты. Атакуйте его с сильным AGI/STR героем — Decrepify не помогает против физического урона (но делает вас нематериальным)."
+  },
+  "shadow_shaman": {
+    counters: ["BKB", "Silencer", "Blink Dagger (нападение)"],
+    items: ["BKB", "Force Staff", "Linken's Sphere"],
+    tip: "Shaman — лучший создаватель пиков. BKB предотвращает весь его CC (Hex, Shackles). Убивайте его до того, как он поставит пики — пики уничтожают строения быстро. Он хрупкий."
+  },
+  "silencer": {
+    counters: ["BKB", "Doom", "Clinkz"],
+    items: ["BKB", "Linken's Sphere", "Euls Scepter"],
+    tip: "Silencer с Global Silence — мощный teamfight-герой. BKB блокирует молчание. Doom блокирует все его способности. Его Int Steal делает союзников слабее — убивайте его в первую очередь."
+  },
+  "storm_spirit": {
+    counters: ["Orchid", "Bloodseeker", "Lion"],
+    items: ["Orchid Malevolence", "Euls Scepter", "BKB"],
+    tip: "Storm зависит от маны для передвижения. Orchid останавливает все его Ball Lightning маневры. Bloodseeker замедляет его при ультования через Rupture. Мана-burn контрит его полностью."
+  },
+  "tinker": {
+    counters: ["Faceless Void", "Silencer", "Doom"],
+    items: ["BKB", "Orchid Malevolence", "Diffusal Blade"],
+    tip: "Tinker зависит от Rearm для сброса КД. Silencer прерывает Rearm молчанием. Faceless Void ловит его в Chronosphere. Атакуйте его лагерь рано — Tinker fragile и беззащитен без ультов."
+  },
+  "zeus": {
+    counters: ["BKB", "Linken's Sphere", "Silencer"],
+    items: ["BKB", "Linken's Sphere", "Euls Scepter (от его ульта)"],
+    tip: "Zeus наносит глобальный урон. BKB блокирует Chain Lightning и Thundergod's Wrath. Eul на себя прерывает Thundergods Wrath урон. Он хрупкий — агрессия в начале обязательна."
+  },
+  // ── УНИВЕРСАЛЬНЫЕ ──
+  "marci": {
+    counters: ["Doom", "Bane", "Ancient Apparition"],
+    items: ["Heaven's Halberd", "BKB", "Hex"],
+    tip: "Marci — мобильный ближний боец с сильным ультом. Doom полностью выключает её. BKB помогает ей игнорировать CC, но Heaven's Halberd дизармит, делая её Unleash неэффективным."
+  },
+  "primal_beast": {
+    counters: ["Silencer", "BKB", "Pugna"],
+    items: ["BKB", "Euls Scepter", "Force Staff"],
+    tip: "Primal Beast имеет огромный AoE урон. BKB блокирует его оглушение. Force Staff позволяет отпрыгнуть из пути его Trample. Silencer блокирует его ульт Pulverize."
+  },
+  "snapfire": {
+    counters: ["BKB", "Silencer", "Anti-Mage"],
+    items: ["BKB", "Linken's Sphere", "Euls Scepter"],
+    tip: "Snapfire — дамагер поддержки с Mortimer Kisses. BKB блокирует его ульт ракеты. Всегда двигайтесь — Mortimer Kisses имеет задержку. AM burn его ману, делая его нейтральным."
+  },
+  // ── ДОПОЛНИТЕЛЬНЫЕ ПОПУЛЯРНЫЕ ──
+  "pudge": {
+    counters: ["Ursa", "Lifestealer", "Viper"],
+    items: ["BKB", "Force Staff", "Blade Mail"],
+    tip: "Pudge зависит от Hook. Постоянно двигайтесь за крипами или деревьями. BKB блокирует его Dismember. Blade Mail отражает Rot, убивая его. В команде держитесь рядом — не разделяйтесь."
+  },
+  "bloodseeker": {
+    counters: ["Omniknight", "Oracle", "Abaddon"],
+    items: ["BKB", "Force Staff (для союзников)", "Euls Scepter"],
+    tip: "Rupture убивает при перемещении. Eul на себе не поможет (всё ещё в воздухе). Omniknight Divine Favor/Repel снимает Rupture. Blink Dagger прерывается от урона Rupture — аккуратно."
+  },
+  "lifestealer": {
+    counters: ["Doom", "Pugna", "Ancient Apparition"],
+    items: ["Heaven's Halberd", "BKB", "Hex"],
+    tip: "Lifestealer с Feast и Open Wounds — живой танк. Heaven's Halberd дизармит. AA ульт отменяет его лайфстил. Doom блокирует Rage. Pugna Decrepify делает его беспомощным в атаке."
+  },
+  "faceless_void": {
+    counters: ["Rubick", "Tinker", "Oracle"],
+    items: ["Euls Scepter (во время Chronosphere)", "Force Staff (побег)", "BKB"],
+    tip: "Chronosphere ловит союзников. Rubick украл Chronosphere — смертный приговор для Void. Eul на себе выбрасывает из Chronosphere. Никогда не стойте рядом с союзниками — облегчите ему ловушку."
+  },
+  "meepo": {
+    counters: ["Earthshaker", "Leshrac", "Warlock"],
+    items: ["Earthshaker Echo Slam", "Radiance", "Leshrac AoE"],
+    tip: "Meepo все копии умирают если умирает основной. Earthshaker Echo Slam умножается на количество Meepo. Radiance горит все копии. Bane Nightmare полностью выключает основного Meepo."
+  },
+  "nature_prophet": {
+    counters: ["Silencer", "Doom", "Dark Seer"],
+    items: ["BKB", "Orchid Malevolence", "Necronomicon"],
+    tip: "NP с Sprout и глобальным телепортом постоянно харасит. Silencer глобально молчит его. Necronomicon убивает его деревья. Убивайте его деревья в Sprout немедленно — это ловушка."
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// ЗАПАСНОЙ СПИСОК ГЕРОЕВ (если API недоступен)
+// ═══════════════════════════════════════════════════════════
+const FALLBACK_HEROES = [
+  {id:1,  localized_name:"Anti-Mage",       name:"antimage",           primary_attr:"agi", roles:["Carry","Escape"]},
+  {id:2,  localized_name:"Axe",             name:"axe",                primary_attr:"str", roles:["Initiator","Durable","Disabler","Jungler"]},
+  {id:3,  localized_name:"Bane",            name:"bane",               primary_attr:"int", roles:["Disabler","Support","Nuker","Durable"]},
+  {id:4,  localized_name:"Bloodseeker",     name:"bloodseeker",        primary_attr:"agi", roles:["Carry","Jungler","Nuker"]},
+  {id:5,  localized_name:"Crystal Maiden",  name:"crystal_maiden",     primary_attr:"int", roles:["Support","Disabler","Nuker","Roamer"]},
+  {id:6,  localized_name:"Drow Ranger",     name:"drow_ranger",        primary_attr:"agi", roles:["Carry","Pusher","Disabler"]},
+  {id:7,  localized_name:"Earthshaker",     name:"earthshaker",        primary_attr:"str", roles:["Initiator","Disabler","Support","Roamer"]},
+  {id:8,  localized_name:"Juggernaut",      name:"juggernaut",         primary_attr:"agi", roles:["Carry","Pusher","Escape"]},
+  {id:9,  localized_name:"Mirana",          name:"mirana",             primary_attr:"agi", roles:["Carry","Support","Escape","Nuker","Disabler"]},
+  {id:11, localized_name:"Shadow Fiend",    name:"nevermore",          primary_attr:"agi", roles:["Carry","Nuker"]},
+  {id:12, localized_name:"Phantom Lancer",  name:"phantom_lancer",     primary_attr:"agi", roles:["Carry","Escape","Pusher"]},
+  {id:13, localized_name:"Puck",            name:"puck",               primary_attr:"int", roles:["Initiator","Disabler","Escape","Nuker"]},
+  {id:14, localized_name:"Pudge",           name:"pudge",              primary_attr:"str", roles:["Disabler","Initiator","Durable","Nuker"]},
+  {id:15, localized_name:"Razor",           name:"razor",              primary_attr:"agi", roles:["Carry","Durable","Nuker","Pusher"]},
+  {id:16, localized_name:"Sand King",       name:"sand_king",          primary_attr:"str", roles:["Initiator","Disabler","Support","Nuker"]},
+  {id:17, localized_name:"Storm Spirit",    name:"storm_spirit",       primary_attr:"int", roles:["Carry","Initiator","Escape","Nuker","Roamer"]},
+  {id:18, localized_name:"Sven",            name:"sven",               primary_attr:"str", roles:["Carry","Initiator","Disabler","Durable","Nuker"]},
+  {id:19, localized_name:"Tiny",            name:"tiny",               primary_attr:"str", roles:["Carry","Nuker","Initiator","Durable","Pusher"]},
+  {id:20, localized_name:"Vengeful Spirit", name:"vengefulspirit",     primary_attr:"agi", roles:["Support","Disabler","Initiator","Nuker","Roamer"]},
+  {id:21, localized_name:"Windranger",      name:"windrunner",         primary_attr:"int", roles:["Carry","Support","Disabler","Nuker","Escape"]},
+  {id:22, localized_name:"Zeus",            name:"zuus",               primary_attr:"int", roles:["Nuker","Support"]},
+  {id:23, localized_name:"Kunkka",          name:"kunkka",             primary_attr:"str", roles:["Carry","Disabler","Initiator","Durable","Nuker","Support"]},
+  {id:25, localized_name:"Lina",            name:"lina",               primary_attr:"int", roles:["Carry","Support","Nuker","Disabler","Roamer"]},
+  {id:26, localized_name:"Lion",            name:"lion",               primary_attr:"int", roles:["Support","Disabler","Nuker","Roamer"]},
+  {id:27, localized_name:"Shadow Shaman",   name:"shadow_shaman",      primary_attr:"int", roles:["Support","Pusher","Disabler","Roamer"]},
+  {id:28, localized_name:"Slardar",         name:"slardar",            primary_attr:"str", roles:["Carry","Initiator","Disabler","Durable","Jungler"]},
+  {id:29, localized_name:"Tidehunter",      name:"tidehunter",         primary_attr:"str", roles:["Initiator","Disabler","Durable","Support","Roamer"]},
+  {id:30, localized_name:"Witch Doctor",    name:"witch_doctor",       primary_attr:"int", roles:["Support","Nuker","Disabler","Roamer"]},
+  {id:31, localized_name:"Lich",            name:"lich",               primary_attr:"int", roles:["Support","Nuker","Disabler"]},
+  {id:32, localized_name:"Riki",            name:"riki",               primary_attr:"agi", roles:["Carry","Escape","Nuker"]},
+  {id:33, localized_name:"Enigma",          name:"enigma",             primary_attr:"int", roles:["Initiator","Pusher","Disabler","Jungler","Nuker"]},
+  {id:34, localized_name:"Tinker",          name:"tinker",             primary_attr:"int", roles:["Carry","Nuker","Pusher"]},
+  {id:35, localized_name:"Sniper",          name:"sniper",             primary_attr:"agi", roles:["Carry","Nuker"]},
+  {id:36, localized_name:"Necrophos",       name:"necrolyte",          primary_attr:"int", roles:["Carry","Support","Nuker","Jungler"]},
+  {id:37, localized_name:"Warlock",         name:"warlock",            primary_attr:"int", roles:["Support","Pusher","Disabler","Nuker"]},
+  {id:38, localized_name:"Beastmaster",     name:"beastmaster",        primary_attr:"str", roles:["Initiator","Disabler","Durable","Pusher","Jungler"]},
+  {id:39, localized_name:"Queen of Pain",   name:"queenofpain",        primary_attr:"int", roles:["Carry","Initiator","Disabler","Escape","Nuker"]},
+  {id:40, localized_name:"Venomancer",      name:"venomancer",         primary_attr:"agi", roles:["Pusher","Support","Disabler","Nuker"]},
+  {id:41, localized_name:"Faceless Void",   name:"faceless_void",      primary_attr:"agi", roles:["Carry","Initiator","Escape","Disabler"]},
+  {id:42, localized_name:"Wraith King",     name:"skeleton_king",      primary_attr:"str", roles:["Carry","Durable","Initiator","Disabler","Jungler"]},
+  {id:43, localized_name:"Death Prophet",   name:"death_prophet",      primary_attr:"int", roles:["Carry","Pusher","Nuker","Initiator","Durable"]},
+  {id:44, localized_name:"Phantom Assassin",name:"phantom_assassin",   primary_attr:"agi", roles:["Carry","Escape","Nuker"]},
+  {id:45, localized_name:"Pugna",           name:"pugna",              primary_attr:"int", roles:["Support","Pusher","Nuker"]},
+  {id:46, localized_name:"Templar Assassin",name:"templar_assassin",   primary_attr:"agi", roles:["Carry","Escape","Nuker","Jungler","Initiator"]},
+  {id:47, localized_name:"Viper",           name:"viper",              primary_attr:"agi", roles:["Carry","Durable","Nuker","Roamer"]},
+  {id:48, localized_name:"Luna",            name:"luna",               primary_attr:"agi", roles:["Carry","Pusher","Nuker","Escape"]},
+  {id:49, localized_name:"Dragon Knight",   name:"dragon_knight",      primary_attr:"str", roles:["Carry","Durable","Pusher","Initiator","Disabler"]},
+  {id:50, localized_name:"Dazzle",          name:"dazzle",             primary_attr:"int", roles:["Support","Healer","Disabler","Nuker","Roamer"]},
+  {id:51, localized_name:"Clinkz",          name:"clinkz",             primary_attr:"agi", roles:["Carry","Escape","Nuker","Disabler"]},
+  {id:52, localized_name:"Omniknight",      name:"omniknight",         primary_attr:"str", roles:["Support","Durable","Initiator"]},
+  {id:53, localized_name:"Chaos Knight",    name:"chaos_knight",       primary_attr:"str", roles:["Carry","Escape","Durable","Disabler","Initiator"]},
+  {id:54, localized_name:"Meepo",           name:"meepo",              primary_attr:"agi", roles:["Carry","Escape","Nuker","Initiator","Disabler","Jungler","Pusher"]},
+  {id:55, localized_name:"Treant Protector",name:"treant",             primary_attr:"str", roles:["Support","Durable","Disabler","Initiator","Roamer"]},
+  {id:56, localized_name:"Ogre Magi",       name:"ogre_magi",          primary_attr:"str", roles:["Support","Durable","Disabler","Nuker","Roamer"]},
+  {id:57, localized_name:"Undying",         name:"undying",            primary_attr:"str", roles:["Support","Durable","Disabler","Nuker","Initiator","Roamer"]},
+  {id:58, localized_name:"Rubick",          name:"rubick",             primary_attr:"int", roles:["Support","Disabler","Nuker","Roamer"]},
+  {id:59, localized_name:"Disruptor",       name:"disruptor",          primary_attr:"int", roles:["Support","Disabler","Nuker","Roamer"]},
+  {id:60, localized_name:"Nyx Assassin",    name:"nyx_assassin",       primary_attr:"agi", roles:["Escape","Nuker","Disabler","Initiator","Roamer"]},
+  {id:61, localized_name:"Naga Siren",      name:"naga_siren",         primary_attr:"agi", roles:["Carry","Initiator","Disabler","Escape","Jungler","Pusher"]},
+  {id:62, localized_name:"Keeper of the Light",name:"keeper_of_the_light",primary_attr:"int",roles:["Support","Nuker","Pusher"]},
+  {id:63, localized_name:"Io",              name:"wisp",               primary_attr:"universal", roles:["Support","Escape","Jungler"]},
+  {id:64, localized_name:"Visage",          name:"visage",             primary_attr:"int", roles:["Support","Pusher","Durable","Nuker","Carry","Disabler"]},
+  {id:65, localized_name:"Slark",           name:"slark",              primary_attr:"agi", roles:["Carry","Escape","Initiator","Roamer"]},
+  {id:66, localized_name:"Medusa",          name:"medusa",             primary_attr:"agi", roles:["Carry","Durable","Pusher","Nuker"]},
+  {id:67, localized_name:"Troll Warlord",   name:"troll_warlord",      primary_attr:"agi", roles:["Carry","Pusher","Disabler"]},
+  {id:68, localized_name:"Centaur Warrunner",name:"centaur_warrunner", primary_attr:"str", roles:["Initiator","Durable","Disabler","Carry","Support"]},
+  {id:69, localized_name:"Magnus",          name:"magnataur",          primary_attr:"str", roles:["Initiator","Disabler","Nuker","Carry","Support"]},
+  {id:70, localized_name:"Timbersaw",       name:"shredder",           primary_attr:"str", roles:["Carry","Initiator","Durable","Nuker","Escape"]},
+  {id:72, localized_name:"Gyrocopter",      name:"gyrocopter",         primary_attr:"agi", roles:["Carry","Nuker","Pusher"]},
+  {id:73, localized_name:"Chaos Knight",    name:"chaos_knight",       primary_attr:"str", roles:["Carry","Durable","Disabler","Initiator","Escape"]},
+  {id:74, localized_name:"Invoker",         name:"invoker",            primary_attr:"int", roles:["Carry","Nuker","Disabler","Pusher","Escape","Initiator"]},
+  {id:75, localized_name:"Silencer",        name:"silencer",           primary_attr:"int", roles:["Carry","Support","Disabler","Nuker","Roamer"]},
+  {id:76, localized_name:"Outworld Destroyer",name:"obsidian_destroyer",primary_attr:"int",roles:["Carry","Nuker","Disabler","Initiator"]},
+  {id:77, localized_name:"Lycan",           name:"lycan",              primary_attr:"str", roles:["Carry","Pusher","Jungler"]},
+  {id:78, localized_name:"Brewmaster",      name:"brewmaster",         primary_attr:"str", roles:["Initiator","Durable","Disabler","Nuker","Carry","Jungler"]},
+  {id:79, localized_name:"Shadow Demon",    name:"shadow_demon",       primary_attr:"int", roles:["Support","Disabler","Nuker","Pusher","Roamer"]},
+  {id:80, localized_name:"Lone Druid",      name:"lone_druid",         primary_attr:"agi", roles:["Carry","Pusher","Jungler","Durable","Escape"]},
+  {id:81, localized_name:"Chaos Knight",    name:"chaos_knight",       primary_attr:"str", roles:["Carry"]},
+  {id:82, localized_name:"Meepo",           name:"meepo",              primary_attr:"agi", roles:["Carry"]},
+  {id:83, localized_name:"Treant Protector",name:"treant",             primary_attr:"str", roles:["Support"]},
+  {id:84, localized_name:"Ogre Magi",       name:"ogre_magi",          primary_attr:"str", roles:["Support"]},
+  {id:85, localized_name:"Undying",         name:"undying",            primary_attr:"str", roles:["Support"]},
+  {id:86, localized_name:"Rubick",          name:"rubick",             primary_attr:"int", roles:["Support"]},
+  {id:87, localized_name:"Disruptor",       name:"disruptor",          primary_attr:"int", roles:["Support"]},
+  {id:88, localized_name:"Nyx Assassin",    name:"nyx_assassin",       primary_attr:"agi", roles:["Escape"]},
+  {id:89, localized_name:"Doom",            name:"doom_bringer",       primary_attr:"str", roles:["Carry","Durable","Initiator","Pusher","Jungler","Disabler"]},
+  {id:90, localized_name:"Ancient Apparition",name:"ancient_apparition",primary_attr:"int",roles:["Support","Nuker","Disabler","Roamer"]},
+  {id:91, localized_name:"Spirit Breaker",  name:"spirit_breaker",     primary_attr:"str", roles:["Initiator","Durable","Escape","Disabler","Carry","Roamer"]},
+  {id:92, localized_name:"Ursa",            name:"ursa",               primary_attr:"agi", roles:["Carry","Jungler"]},
+  {id:93, localized_name:"Morphling",       name:"morphling",          primary_attr:"agi", roles:["Carry","Escape","Durable","Nuker"]},
+  {id:94, localized_name:"Nature's Prophet",name:"furion",             primary_attr:"int", roles:["Carry","Jungler","Pusher","Escape","Support","Nuker"]},
+  {id:95, localized_name:"Lifestealer",     name:"life_stealer",       primary_attr:"str", roles:["Carry","Durable","Jungler"]},
+  {id:96, localized_name:"Dark Seer",       name:"dark_seer",          primary_attr:"int", roles:["Initiator","Disabler","Support","Pusher","Durable","Escape","Nuker"]},
+  {id:97, localized_name:"Clinkz",          name:"clinkz",             primary_attr:"agi", roles:["Carry","Escape","Nuker"]},
+  {id:98, localized_name:"Omniknight",      name:"omniknight",         primary_attr:"str", roles:["Support","Durable"]},
+  {id:99, localized_name:"Enchantress",     name:"enchantress",        primary_attr:"int", roles:["Support","Carry","Jungler","Pusher","Roamer","Durable"]},
+  {id:100,localized_name:"Huskar",          name:"huskar",             primary_attr:"str", roles:["Carry","Durable","Initiator","Nuker"]},
+  {id:101,localized_name:"Night Stalker",   name:"night_stalker",      primary_attr:"str", roles:["Carry","Initiator","Durable","Disabler","Roamer"]},
+  {id:102,localized_name:"Broodmother",     name:"broodmother",        primary_attr:"agi", roles:["Carry","Escape","Pusher","Jungler"]},
+  {id:103,localized_name:"Bounty Hunter",   name:"bounty_hunter",      primary_attr:"agi", roles:["Carry","Escape","Nuker","Disabler","Roamer"]},
+  {id:104,localized_name:"Weaver",          name:"weaver",             primary_attr:"agi", roles:["Carry","Escape","Nuker"]},
+  {id:105,localized_name:"Jakiro",          name:"jakiro",             primary_attr:"int", roles:["Support","Nuker","Pusher","Disabler"]},
+  {id:106,localized_name:"Batrider",        name:"batrider",           primary_attr:"int", roles:["Initiator","Disabler","Support","Nuker","Escape","Roamer"]},
+  {id:107,localized_name:"Chen",            name:"chen",               primary_attr:"int", roles:["Support","Jungler","Pusher"]},
+  {id:108,localized_name:"Spectre",         name:"spectre",            primary_attr:"agi", roles:["Carry","Escape","Durable"]},
+  {id:109,localized_name:"Doom",            name:"doom_bringer",       primary_attr:"str", roles:["Carry","Initiator","Disabler"]},
+  {id:110,localized_name:"Ancient Apparition",name:"ancient_apparition",primary_attr:"int",roles:["Support","Nuker","Disabler","Roamer"]},
+  {id:111,localized_name:"Clockwerk",       name:"rattletrap",         primary_attr:"str", roles:["Initiator","Durable","Disabler","Roamer","Nuker"]},
+  {id:112,localized_name:"Leshrac",         name:"leshrac",            primary_attr:"int", roles:["Carry","Support","Pusher","Nuker","Disabler"]},
+  {id:113,localized_name:"Nature's Prophet",name:"furion",             primary_attr:"int", roles:["Carry","Jungler","Pusher","Escape","Support"]},
+  {id:114,localized_name:"Lifestealer",     name:"life_stealer",       primary_attr:"str", roles:["Carry","Durable","Jungler"]},
+  {id:119,localized_name:"Marci",           name:"marci",              primary_attr:"universal", roles:["Support","Disabler","Initiator","Durable","Roamer"]},
+  {id:120,localized_name:"Primal Beast",    name:"primal_beast",       primary_attr:"universal", roles:["Initiator","Durable","Disabler","Carry","Roamer"]},
+  {id:121,localized_name:"Muerta",          name:"muerta",             primary_attr:"int", roles:["Carry","Support","Nuker","Disabler"]},
+  {id:129,localized_name:"Snapfire",        name:"snapfire",           primary_attr:"universal", roles:["Support","Nuker","Disabler","Initiator","Roamer","Durable"]},
+  {id:135,localized_name:"Dawnbreaker",     name:"dawnbreaker",        primary_attr:"str", roles:["Support","Initiator","Durable","Nuker","Carry","Roamer"]},
+  {id:136,localized_name:"Marci",           name:"marci",              primary_attr:"universal", roles:["Support"]},
+  {id:137,localized_name:"Primal Beast",    name:"primal_beast",       primary_attr:"universal", roles:["Initiator"]},
+];
+
+// ═══════════════════════════════════════════════════════════
+// УТИЛИТЫ
+// ═══════════════════════════════════════════════════════════
+function heroImgUrl(npcName) {
+  const clean = npcName.replace('npc_dota_hero_', '');
+  return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${clean}.png`;
+}
+
+function attrLabel(attr) {
+  const map = { str:"Сила", agi:"Ловкость", int:"Интеллект", universal:"Универсал" };
+  return map[attr] || attr;
+}
+
+function kbKey(heroName) {
+  return heroName.replace('npc_dota_hero_', '');
+}
+
+// ═══════════════════════════════════════════════════════════
+// СОСТОЯНИЕ
+// ═══════════════════════════════════════════════════════════
+let allHeroes = [];
+let currentFilter = 'all';
+let searchQuery = '';
+
+// ═══════════════════════════════════════════════════════════
+// СКЕЛЕТОНЫ
+// ═══════════════════════════════════════════════════════════
+function showSkeletons(n = 40) {
+  const grid = document.getElementById('hero-grid');
+  grid.innerHTML = Array.from({length: n}, () => `
+    <div class="skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-text short"></div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// РЕНДЕР КАРТОЧЕК
+// ═══════════════════════════════════════════════════════════
+function renderHeroes() {
+  const grid = document.getElementById('hero-grid');
+  const emptyState = document.getElementById('empty-state');
+  const heroCount = document.getElementById('hero-count');
+
+  const q = searchQuery.toLowerCase();
+  const filtered = allHeroes.filter(h => {
+    const matchAttr = currentFilter === 'all' || h.primary_attr === currentFilter;
+    const matchSearch = !q || h.localized_name.toLowerCase().includes(q);
+    return matchAttr && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    emptyState.style.display = 'block';
+    heroCount.innerHTML = '';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  heroCount.innerHTML = `Показано героев: <strong>${filtered.length}</strong> из ${allHeroes.length}`;
+
+  grid.innerHTML = filtered.map((h, i) => {
+    const key = kbKey(h.name);
+    const hasData = !!KNOWLEDGE_BASE[key];
+    const imgUrl = heroImgUrl(h.name);
+    return `
+      <div class="hero-card" data-id="${h.id}" style="animation-delay:${Math.min(i*0.02, 0.5)}s">
+        ${hasData ? '<div class="has-data-badge" title="Есть аналитика"></div>' : ''}
+        <img src="${imgUrl}" alt="${h.localized_name}" loading="lazy" onerror="this.src='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/default.png'">
+        <div class="card-info">
+          <div class="card-name">${h.localized_name}</div>
+          <div class="card-attr attr-${h.primary_attr}">${attrLabel(h.primary_attr)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('.hero-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = parseInt(card.dataset.id);
+      openModal(allHeroes.find(h => h.id === id));
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// МОДАЛЬНОЕ ОКНО
+// ═══════════════════════════════════════════════════════════
+function openModal(hero) {
+  if (!hero) return;
+  const key = kbKey(hero.name);
+  const data = KNOWLEDGE_BASE[key];
+
+  document.getElementById('modal-img').src = heroImgUrl(hero.name);
+  document.getElementById('modal-name').textContent = hero.localized_name;
+
+  const attrEl = document.getElementById('modal-attr');
+  attrEl.innerHTML = `<span class="card-attr attr-${hero.primary_attr}">${attrLabel(hero.primary_attr)}</span>`;
+
+  const rolesEl = document.getElementById('modal-roles');
+  rolesEl.textContent = hero.roles ? hero.roles.join(' · ') : '';
+
+  document.getElementById('no-data-notice').style.display = data ? 'none' : 'block';
+
+  const body = document.getElementById('modal-body');
+
+  if (data) {
+    const countersList = data.counters.map((c, i) => `
+      <li><span class="num">${i+1}.</span> ${c}</li>
+    `).join('');
+
+    const itemsHtml = data.items.map(item => `
+      <span class="item-pill"><span class="icon">⚔</span>${item}</span>
+    `).join('');
+
+    body.innerHTML = `
+      <div class="modal-section">
+        <div class="section-title">Контрпики</div>
+        <ul class="counter-list">${countersList}</ul>
+      </div>
+      <div class="modal-section">
+        <div class="section-title">Предметы-контры</div>
+        <div>${itemsHtml}</div>
+      </div>
+      <div class="modal-section full-width">
+        <div class="section-title">Совет по игре против</div>
+        <p class="tip-text">${data.tip}</p>
+      </div>
+    `;
+  } else {
+    body.innerHTML = `
+      <div class="modal-section full-width">
+        <div class="section-title">Общие рекомендации</div>
+        <p class="tip-text">
+          Для этого героя нет данных в базе знаний. Базовые советы: изучайте сильные и слабые стороны героя на dotabuff.com или wiki.dota2.com.
+          Обращайте внимание на атрибуты: герои <span style="color:var(--str)">Силы</span> — танки,
+          <span style="color:var(--agi)">Ловкости</span> — физические дамагеры,
+          <span style="color:var(--int)">Интеллекта</span> — маги и саппорты,
+          <span style="color:var(--all)">Универсальные</span> — гибридные.
+        </p>
+      </div>
+    `;
+  }
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ═══════════════════════════════════════════════════════════
+// ПОИСК И ФИЛЬТРЫ
+// ═══════════════════════════════════════════════════════════
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderHeroes();
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.attr;
+    renderHeroes();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// ЗАГРУЗКА ДАННЫХ
+// ═══════════════════════════════════════════════════════════
+async function loadHeroes() {
+  const statusBar = document.getElementById('status-bar');
+  showSkeletons(40);
+
+  try {
+    const res = await fetch('https://api.opendota.com/api/heroes', {
+      signal: AbortSignal.timeout(7000)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const heroes = await res.json();
+
+    // deduplicate by id
+    const seen = new Set();
+    allHeroes = heroes.filter(h => {
+      if (seen.has(h.id)) return false;
+      seen.add(h.id);
+      return true;
+    });
+
+    statusBar.innerHTML = `<span class="dot"></span> Данные загружены с OpenDota API — ${allHeroes.length} героев`;
+    setTimeout(() => { statusBar.style.display = 'none'; }, 3000);
+
+  } catch (err) {
+    console.warn('OpenDota API недоступен, используется запасной список:', err);
+    statusBar.innerHTML = `⚠ OpenDota API недоступен — используется встроенный список героев`;
+    statusBar.style.color = '#ffd700';
+
+    const seen = new Set();
+    allHeroes = FALLBACK_HEROES.filter(h => {
+      if (seen.has(h.id) || !h.name) return false;
+      seen.add(h.id);
+      return true;
+    });
+  }
+
+  renderHeroes();
+}
+
+// ═══════════════════════════════════════════════════════════
+// СТАРТ
+// ═══════════════════════════════════════════════════════════
+loadHeroes();
+</script>
+</body>
+</html>
