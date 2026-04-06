@@ -1,106 +1,132 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTAASIS | PRO ANALYTICS</title>
-    <style>
-        :root { --bg: #0b0b0e; --panel: #1c1c24; --accent: #a335ee; --gold: #f1c40f; --text: #e1e1e1; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-        
-        header { background: #111116; padding: 20px; border-bottom: 2px solid var(--accent); text-align: center; }
-        .search-container { padding: 20px; display: flex; justify-content: center; background: #16161d; }
-        #search { width: 80%; max-width: 800px; padding: 15px; border-radius: 30px; border: 1px solid var(--accent); background: #000; color: #fff; outline: none; }
-
-        main { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px; flex-grow: 1; }
-        @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
-
-        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        .hero-card { background: var(--panel); border-radius: 8px; overflow: hidden; border: 1px solid #333; transition: 0.2s; cursor: pointer; position: relative; }
-        .hero-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(163, 53, 238, 0.4); }
-        .hero-card img { width: 100%; display: block; }
-        .hero-name { padding: 8px; font-size: 13px; text-align: center; font-weight: bold; background: rgba(0,0,0,0.8); position: absolute; bottom: 0; width: 100%; }
-
-        /* Красивое всплывающее окно */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .modal { background: #1c1c24; border: 2px solid var(--accent); border-radius: 15px; padding: 30px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 0 30px var(--accent); position: relative; }
-        .modal h2 { color: var(--accent); margin-top: 0; }
-        .modal .role { color: #888; font-size: 14px; margin-bottom: 20px; display: block; }
-        .modal .counter-list { background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; color: var(--gold); font-weight: bold; }
-        .close-btn { margin-top: 20px; padding: 10px 25px; background: var(--accent); border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dota 2 Counterpick — Патч 7.41</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header>
-    <h1 style="margin:0; letter-spacing: 4px;">DOTA<span style="color:var(--accent)">ASIS</span></h1>
-</header>
+  <!-- BACKGROUND EFFECTS -->
+  <div class="bg-layer">
+    <div class="bg-radiant"></div>
+    <div class="bg-dire"></div>
+    <div class="bg-grid"></div>
+    <div class="particles" id="particles"></div>
+  </div>
 
-<div class="search-container">
-    <input type="text" id="search" placeholder="Поиск героя...">
-</div>
-
-<main>
-    <section class="hero-grid" id="heroGrid"></section>
-    <aside style="background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid #333;">
-        <h2 style="color:var(--gold)">TOP ITEMS</h2>
-        <p>BKB, Blink, Manta</p>
-    </aside>
-</main>
-
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <h2 id="modalHeroName"></h2>
-        <span class="role" id="modalHeroRole"></span>
-        <div style="margin-bottom: 10px;">КОНТРПИКИ:</div>
-        <div class="counter-list" id="modalHeroCounter"></div>
-        <button class="close-btn" onclick="closeModal()">ЗАКРЫТЬ</button>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚔</span>
+        <div>
+          <div class="logo-title">DOTA 2</div>
+          <div class="logo-sub">COUNTERPICK DATABASE</div>
+        </div>
+        <div class="patch-badge">PATCH 7.41</div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="heroes">ГЕРОИ</button>
+        <button class="nav-tab" data-tab="items">ПРЕДМЕТЫ</button>
+        <button class="nav-tab" data-tab="counterpick">КОНТРПИК</button>
+      </nav>
     </div>
-</div>
+  </header>
 
-<script>
-    const heroes = [
-        { n: "Anti-Mage", id: "antimage", c: "Meepo, LC, Disruptor, Axe", r: "Carry" },
-        { n: "Axe", id: "axe", c: "Viper, Venomancer, Lifestealer", r: "Offlane" },
-        { n: "Pudge", id: "pudge", c: "Lifestealer, Slark, Ursa", r: "Support/Off" },
-        { n: "Phantom Assassin", id: "phantom_assassin", c: "Axe, Morphling, Tinker", r: "Carry" },
-        { n: "Juggernaut", id: "juggernaut", c: "OD, Slardar, Windranger", r: "Carry" },
-        { n: "Slark", id: "slark", c: "Bloodseeker, Leshrac, Tiny", r: "Carry" },
-        { n: "Invoker", id: "invoker", c: "Nyx Assassin, Pugna, Silencer", r: "Mid" },
-        { n: "Sniper", id: "sniper", c: "Spirit Breaker, Spectre, Storm", r: "Mid/Carry" },
-        { n: "Legion Commander", id: "legion_commander", c: "Oracle, Dazzle, Wyvern", r: "Offlane" },
-        { n: "Shadow Fiend", id: "nevermore", c: "TA, Zeus, Kunkka", r: "Mid" }
-    ];
+  <!-- MAIN -->
+  <main class="main-content">
 
-    function openModal(hero) {
-        document.getElementById('modalHeroName').innerText = hero.n;
-        document.getElementById('modalHeroRole').innerText = hero.r;
-        document.getElementById('modalHeroCounter').innerText = hero.c;
-        document.getElementById('modalOverlay').style.display = 'flex';
-    }
+    <!-- HEROES TAB -->
+    <section class="tab-section active" id="tab-heroes">
+      <div class="section-header">
+        <h2>ВСЕ ГЕРОИ <span class="count-badge" id="hero-count">—</span></h2>
+        <div class="filters">
+          <input class="search-input" id="hero-search" placeholder="Поиск героя..." />
+          <div class="attr-filters">
+            <button class="attr-btn active" data-attr="all">ВСЕ</button>
+            <button class="attr-btn str" data-attr="str">💪 СИЛА</button>
+            <button class="attr-btn agi" data-attr="agi">🗡 ЛОВКОСТЬ</button>
+            <button class="attr-btn int" data-attr="int">✨ ИНТЕЛЛЕКТ</button>
+            <button class="attr-btn uni" data-attr="all_stats">☯ УНИВЕРСАЛ</button>
+          </div>
+          <div class="role-filters" id="role-filters"></div>
+        </div>
+      </div>
+      <div class="loading-state" id="heroes-loading">
+        <div class="loader-ring"></div>
+        <p>Загрузка героев с API...</p>
+      </div>
+      <div class="heroes-grid" id="heroes-grid"></div>
+    </section>
 
-    function closeModal() {
-        document.getElementById('modalOverlay').style.display = 'none';
-    }
+    <!-- ITEMS TAB -->
+    <section class="tab-section" id="tab-items">
+      <div class="section-header">
+        <h2>ВСЕ ПРЕДМЕТЫ <span class="count-badge" id="item-count">—</span></h2>
+        <div class="filters">
+          <input class="search-input" id="item-search" placeholder="Поиск предмета..." />
+          <div class="attr-filters">
+            <button class="item-cat-btn active" data-cat="all">ВСЕ</button>
+            <button class="item-cat-btn" data-cat="consumable">Расходники</button>
+            <button class="item-cat-btn" data-cat="attributes">Аттрибуты</button>
+            <button class="item-cat-btn" data-cat="armor">Броня</button>
+            <button class="item-cat-btn" data-cat="weapon">Оружие</button>
+            <button class="item-cat-btn" data-cat="miscellaneous">Разное</button>
+            <button class="item-cat-btn" data-cat="secret_shop">Секретная лавка</button>
+            <button class="item-cat-btn" data-cat="common">Аксессуары</button>
+            <button class="item-cat-btn" data-cat="support">Поддержка</button>
+            <button class="item-cat-btn" data-cat="caster">Маг</button>
+            <button class="item-cat-btn" data-cat="neutral">🌿 Нейтральные</button>
+          </div>
+        </div>
+      </div>
+      <div class="loading-state" id="items-loading">
+        <div class="loader-ring"></div>
+        <p>Загрузка предметов с API...</p>
+      </div>
+      <div class="items-grid" id="items-grid"></div>
+    </section>
 
-    function draw(query = "") {
-        const grid = document.getElementById('heroGrid');
-        grid.innerHTML = "";
-        heroes.filter(h => h.n.toLowerCase().includes(query.toLowerCase())).forEach(h => {
-            const card = document.createElement('div');
-            card.className = 'hero-card';
-            card.innerHTML = `
-                <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${h.id}.png">
-                <div class="hero-name">${h.n}</div>
-            `;
-            card.onclick = () => openModal(h);
-            grid.appendChild(card);
-        });
-    }
+    <!-- COUNTERPICK TAB -->
+    <section class="tab-section" id="tab-counterpick">
+      <div class="counterpick-layout">
+        <div class="cp-sidebar">
+          <h2>КОНТРПИК</h2>
+          <p class="cp-desc">Выбери вражеского героя, чтобы увидеть лучшие контрпики и рекомендованные предметы.</p>
+          <input class="search-input" id="cp-search" placeholder="Поиск врага..." />
+          <div class="cp-hero-list" id="cp-hero-list"></div>
+        </div>
+        <div class="cp-result" id="cp-result">
+          <div class="cp-placeholder">
+            <div class="cp-placeholder-icon">⚔</div>
+            <p>Выбери вражеского героя</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    document.getElementById('search').oninput = (e) => draw(e.target.value);
-    draw();
-</script>
+  </main>
 
+  <!-- HERO MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="hero-modal" id="hero-modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ITEM MODAL -->
+  <div class="modal-overlay" id="item-modal-overlay">
+    <div class="item-modal" id="item-modal">
+      <button class="modal-close" id="item-modal-close">✕</button>
+      <div id="item-modal-content"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
