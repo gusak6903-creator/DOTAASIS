@@ -3,123 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTAASIS | Counter-Pick Helper 7.41a</title>
+    <title>DOTAASIS | GLOBAL ANALYTICS 7.41A</title>
     <style>
-        :root {
-            --bg: #0f0f12;
-            --card-bg: #1c1c21;
-            --accent: #a335ee;
-            --text: #e1e1e1;
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { color: var(--accent); letter-spacing: 2px; }
+        :root { --bg: #0b0b0e; --panel: #16161d; --accent: #a335ee; --gold: #f1c40f; --text: #e1e1e1; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        header { background: #000; padding: 15px 30px; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; letter-spacing: 3px; }
+        .patch-tag { background: var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 12px; }
 
-        /* Поиск */
-        .search-box {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 30px;
-            display: block;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            background: #25252b;
-            color: white;
-            font-size: 1.1rem;
-        }
+        .search-container { background: #111; padding: 15px; text-align: center; border-bottom: 1px solid #333; }
+        #search { width: 60%; padding: 12px 25px; border-radius: 25px; border: 1px solid #444; background: #000; color: #fff; outline: none; transition: 0.3s; }
+        #search:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(163, 53, 238, 0.5); }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        main { display: grid; grid-template-columns: 1fr 320px; gap: 0; flex-grow: 1; overflow: hidden; }
+        
+        .hero-section { padding: 20px; overflow-y: auto; background: #0d0d11; }
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        .hero-card { background: var(--panel); border-radius: 6px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.2s; position: relative; }
+        .hero-card:hover { border-color: var(--accent); transform: scale(1.03); z-index: 2; }
+        .hero-card img { width: 100%; display: block; transition: 0.3s; }
+        .hero-name { padding: 6px; font-size: 11px; text-align: center; background: rgba(0,0,0,0.8); position: absolute; bottom: 0; width: 100%; }
 
-        .hero-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #333;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .sidebar { background: #111; border-left: 1px solid #333; padding: 20px; overflow-y: auto; }
+        .item-card { display: flex; align-items: center; gap: 10px; background: #1a1a22; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #333; }
+        .item-card img { width: 40px; border: 1px solid var(--gold); }
+        .item-info b { font-size: 13px; color: var(--gold); display: block; }
+        .item-info span { font-size: 11px; color: #888; }
 
-        .hero-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(163, 53, 238, 0.3);
-        }
-
-        .hero-card img {
-            width: 100%;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        /* Метка патча */
-        .patch-note {
-            background: #2b1d3d;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #d199ff;
-        }
+        /* Модальное окно */
+        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1c1c24; padding: 30px; border: 2px solid var(--accent); border-radius: 15px; z-index: 100; box-shadow: 0 0 50px #000; width: 300px; text-align: center; }
+        .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 99; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>DOTAASIS <span class="patch-note">Patch 7.41a</span></h1>
-    <p>Твой помощник по контрпикам и предметам</p>
-    <input type="text" class="search-box" id="heroSearch" placeholder="Введите имя героя (например, Anti-Mage)...">
+    <div class="logo">DOTA<span style="color:var(--accent)">ASIS</span></div>
+    <div class="patch-tag">V. 7.41A GLOBAL</div>
 </header>
 
-<div class="grid" id="heroGrid">
-    </div>
+<div class="search-container">
+    <input type="text" id="search" placeholder="Поиск героя (например, 'Anti' или 'Pudge')...">
+</div>
+
+<main>
+    <section class="hero-section">
+        <div class="hero-grid" id="heroGrid"></div>
+    </section>
+    
+    <aside class="sidebar">
+        <h3 style="margin-top:0; color:var(--gold)">META ITEMS</h3>
+        <div id="items">
+            <div class="item-card"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png"><div class="item-info"><b>BKB</b><span>Против магического контроля</span></div></div>
+            <div class="item-card"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png"><div class="item-info"><b>Blink Dagger</b><span>Ключ к инициации</span></div></div>
+            <div class="item-card"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/nullifier.png"><div class="item-info"><b>Nullifier</b><span>Против Ghost/Eul/Force</span></div></div>
+            <div class="item-card"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/silver_edge.png"><div class="item-info"><b>Silver Edge</b><span>Отключение пассивок</span></div></div>
+            <div class="item-card"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/shivas_guard.png"><div class="item-info"><b>Shiva's Guard</b><span>Против физ-урона и лечения</span></div></div>
+        </div>
+    </aside>
+</main>
+
+<div class="overlay" id="overlay" onclick="closeModal()"></div>
+<div id="modal">
+    <h2 id="mName" style="color:var(--accent); margin-top:0;"></h2>
+    <p style="color:var(--gold)">КТО КОНТРИТ:</p>
+    <p id="mCounter" style="font-weight:bold;"></p>
+    <button onclick="closeModal()" style="margin-top:20px; padding: 10px 20px; background: var(--accent); border:none; color:white; border-radius:5px; cursor:pointer;">Закрыть</button>
+</div>
 
 <script>
-    // База данных героев (для примера добавил нескольких, ты сможешь расширить список)
     const heroes = [
-        { name: "Anti-Mage", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/antimage.png", counter: "Meepo, Legion Commander, Disruptor" },
-        { name: "Pudge", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png", counter: "Lifestealer, Slark, Timbersaw" },
-        { name: "Phantom Assassin", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phantom_assassin.png", counter: "Axe, Morphling, Tinker" },
-        { name: "Juggernaut", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png", counter: "Slardar, Outworld Destroyer" }
-        // Сюда можно дописать всех 120+ героев по аналогии
+        { n: "Abaddon", id: "abaddon", c: "Doom, Slark, Ancient Apparition" },
+        { n: "Alchemist", id: "alchemist", c: "AA, Lifestealer, Slardar" },
+        { n: "Anti-Mage", id: "antimage", c: "Meepo, Legion Commander, Disruptor" },
+        { n: "Arc Warden", id: "arc_warden", c: "Meepo, Lycan, Broodmother" },
+        { n: "Axe", id: "axe", c: "Viper, Venomancer, Timbersaw" },
+        { n: "Bane", id: "bane", c: "Abaddon, LC, Silencer" },
+        { n: "Bloodseeker", id: "bloodseeker", c: "Troll Warlord, Morphling" },
+        { n: "Crystal Maiden", id: "crystal_maiden", c: "Bounty Hunter, Nyx Assassin" },
+        { n: "Drow Ranger", id: "drow_ranger", c: "Clockwerk, Phantom Assassin" },
+        { n: "Invoker", id: "invoker", c: "Nyx Assassin, Pugna, Silencer" },
+        { n: "Juggernaut", id: "juggernaut", c: "Outworld Destroyer, Slardar" },
+        { n: "Legion Commander", id: "legion_commander", c: "Oracle, Dazzle, Winter Wyvern" },
+        { n: "Morphling", id: "morphling", c: "AA, Elder Titan, OD" },
+        { n: "Phantom Assassin", id: "phantom_assassin", c: "Axe, Morphling, Tinker" },
+        { n: "Pudge", id: "pudge", c: "Lifestealer, Slark, Ursa" },
+        { n: "Shadow Fiend", id: "nevermore", c: "Templar Assassin, Zeus" },
+        { n: "Slark", id: "slark", c: "Bloodseeker, Disruptor, Leshrac" },
+        { n: "Sniper", id: "sniper", c: "Spirit Breaker, Spectre, Storm Spirit" },
+        { n: "Terrorblade", id: "terrorblade", c: "Zeus, Necrophos, Tinker" },
+        { n: "Ursa", id: "ursa", c: "Venomancer, Viper, Halberd item" },
+        { n: "Wraith King", id: "skeleton_king", c: "Anti-Mage, Lion, Diffusal Blade" },
+        { n: "Zeus", id: "zuus", c: "Anti-Mage, Templar Assassin, Huskar" }
     ];
 
-    const grid = document.getElementById('heroGrid');
-    const searchInput = document.getElementById('heroSearch');
-
-    function displayHeroes(filter = "") {
-        grid.innerHTML = "";
-        const filtered = heroes.filter(h => h.name.toLowerCase().includes(filter.toLowerCase()));
-        
-        filtered.forEach(hero => {
-            const card = document.createElement('div');
-            card.className = 'hero-card';
-            card.innerHTML = `
-                <img src="${hero.img}" alt="${hero.name}">
-                <div>${hero.name}</div>
-            `;
-            card.onclick = () => alert(`Контрпики для ${hero.name}: ${hero.counter}`);
-            grid.appendChild(card);
+    function render(q = "") {
+        const g = document.getElementById('heroGrid');
+        g.innerHTML = "";
+        heroes.filter(h => h.n.toLowerCase().includes(q.toLowerCase())).forEach(h => {
+            const d = document.createElement('div');
+            d.className = 'hero-card';
+            d.innerHTML = `<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${h.id}.png"><div class="hero-name">${h.n}</div>`;
+            d.onclick = () => {
+                document.getElementById('mName').innerText = h.n;
+                document.getElementById('mCounter').innerText = h.c;
+                document.getElementById('modal').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            };
+            g.appendChild(d);
         });
     }
 
-    searchInput.oninput = (e) => displayHeroes(e.target.value);
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
 
-    // Показываем всех героев при загрузке
-    displayHeroes();
+    document.getElementById('search').oninput = (e) => render(e.target.value);
+    render();
 </script>
-
 </body>
 </html>
