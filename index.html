@@ -3,59 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTAASIS | ULTIMATE ANALYTICS</title>
+    <title>DOTAASIS ULTIMATE | Patch 7.41a</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="glow-bg"></div>
-    
-    <nav class="glass-nav">
-        <div class="logo">DOTA<span>ASIS</span></div>
-        <div class="nav-links">
-            <button class="nav-btn active" onclick="showSection('heroes')">ГЕРОИ</button>
-            <button class="nav-btn" onclick="showSection('items')">ПРЕДМЕТЫ</button>
-            <button class="nav-btn" onclick="showSection('draft')">ДРАФТ-ПОМОЩНИК</button>
+    <div class="steam-bg"></div>
+    <div class="ambient-glow"></div>
+
+    <nav class="glass-header">
+        <div class="logo">
+            <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/global/dota2_logo_symbol.svg" alt="Dota">
+            DOTA<span>ASIS</span>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" data-target="heroes">База Героев</button>
+            <button class="tab-btn" data-target="items">Арсенал (Предметы)</button>
+            <button class="tab-btn draft-glow" data-target="draft">Драфт-Аналитик</button>
         </div>
     </nav>
 
-    <main id="main-content">
-        <section id="heroes-section" class="content-section">
-            <div class="search-bar glass">
-                <input type="text" id="heroSearch" placeholder="Поиск героя по имени..." oninput="filterHeroes()">
-            </div>
-            <div class="hero-grid" id="heroGrid"></div>
-        </section>
+    <main class="container">
+        <div id="loader" class="glass-panel" style="text-align: center; padding: 50px; margin-top: 20vh;">
+            <h2 style="color: var(--steam-blue);">ПОДКЛЮЧЕНИЕ К СЕРВЕРАМ OPENDOTA...</h2>
+            <div class="spinner"></div>
+        </div>
 
-        <section id="items-section" class="content-section" style="display:none;">
-            <div class="item-categories">
-                <button class="cat-btn active" onclick="filterItems('all')">Все</button>
-                <button class="cat-btn" onclick="filterItems('basic')">Обычные</button>
-                <button class="cat-btn" onclick="filterItems('neutral')">Нейтральные</button>
-            </div>
-            <div class="item-grid" id="itemGrid"></div>
-        </section>
-
-        <section id="draft-section" class="content-section" style="display:none;">
-            <div class="draft-container glass">
-                <h2>АНАЛИЗАТОР ВРАЖЕСКОГО ПИКА</h2>
-                <p>Выберите 5 героев противника:</p>
-                <div class="draft-slots" id="draftSlots">
-                    <div class="slot" onclick="openPicker(0)">+</div>
-                    <div class="slot" onclick="openPicker(1)">+</div>
-                    <div class="slot" onclick="openPicker(2)">+</div>
-                    <div class="slot" onclick="openPicker(3)">+</div>
-                    <div class="slot" onclick="openPicker(4)">+</div>
+        <section id="heroes-sec" class="view-section" style="display: none;">
+            <div class="glass-panel filters">
+                <input type="text" id="searchInput" placeholder="Поиск героя...">
+                <div class="attr-filters">
+                    <button onclick="filterAttr('all')" class="active">Все</button>
+                    <button onclick="filterAttr('str')" style="color: #ff4c4c;">Сила</button>
+                    <button onclick="filterAttr('agi')" style="color: #00ff00;">Ловкость</button>
+                    <button onclick="filterAttr('int')" style="color: #00bfff;">Интеллект</button>
+                    <button onclick="filterAttr('uni')" style="color: #ffaa00;">Универсал</button>
                 </div>
-                <button class="analyze-btn" onclick="analyzeDraft()">АНАЛИЗИРОВАТЬ</button>
-                <div id="draftResult" class="result-box"></div>
+            </div>
+            <div class="hero-grid" id="heroesGrid"></div>
+        </section>
+
+        <section id="items-sec" class="view-section" style="display: none;">
+            <div class="glass-panel" style="margin-bottom: 20px;">
+                <h2 style="margin: 0; color: var(--steam-blue);">База Предметов</h2>
+            </div>
+            <div class="item-grid" id="itemsGrid"></div>
+        </section>
+
+        <section id="draft-sec" class="view-section" style="display: none;">
+            <div class="glass-panel draft-board">
+                <h2 style="color: var(--steam-blue); text-align: center;">АНАЛИЗ ВРАЖЕСКОГО ПИКА</h2>
+                <p style="text-align: center; color: #8f98a0;">Выберите 5 героев противника для расчета идеального контр-драфта</p>
+                <div class="draft-slots">
+                    <div class="slot glass-card" onclick="openDraftSelector(0)">+</div>
+                    <div class="slot glass-card" onclick="openDraftSelector(1)">+</div>
+                    <div class="slot glass-card" onclick="openDraftSelector(2)">+</div>
+                    <div class="slot glass-card" onclick="openDraftSelector(3)">+</div>
+                    <div class="slot glass-card" onclick="openDraftSelector(4)">+</div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="action-btn" onclick="calculateDraft()">СГЕНЕРИРОВАТЬ ОТВЕТ</button>
+                </div>
+                <div id="draftResult" style="margin-top: 30px;"></div>
             </div>
         </section>
     </main>
 
-    <div id="modal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content glass" onclick="event.stopPropagation()">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div id="modalBody"></div>
+    <div id="heroModal" class="modal">
+        <div class="modal-content glass-panel liquid-border">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalData"></div>
+        </div>
+    </div>
+
+    <div id="draftModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close-btn" onclick="closeDraftModal()">&times;</span>
+            <h2>Выберите героя:</h2>
+            <div class="hero-grid" id="draftHeroGrid" style="grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));"></div>
         </div>
     </div>
 
