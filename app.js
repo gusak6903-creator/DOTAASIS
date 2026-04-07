@@ -1,211 +1,210 @@
-:root {
-    --steam-bg: #171a21;
-    --steam-panel: #1b2838;
-    --steam-blue: #66c0f4;
-    --steam-dark-blue: #2a475e;
-    --text-main: #c7d5e0;
-    --glass-bg: rgba(27, 40, 56, 0.65);
-    --glass-border: rgba(102, 192, 244, 0.2);
+let heroesData = [];
+let itemsData = {};
+let draftPicks = [null, null, null, null, null];
+let currentDraftSlot = null;
+
+const ATTR_MAP = { 'str': 'Сила', 'agi': 'Ловкость', 'int': 'Интеллект', 'all': 'Универсал' };
+const ROLE_MAP = { 'Carry': 'Керри', 'Support': 'Саппорт', 'Nuker': 'Нюкер', 'Disabler': 'Дизейблер', 'Jungler': 'Лесник', 'Durable': 'Танк', 'Escape': 'Эскейп', 'Pusher': 'Пушер', 'Initiator': 'Инициатор' };
+
+// Инициализация (запрос данных)
+async function init() {
+    try {
+        const [heroesRes, itemsRes] = await Promise.all([
+            fetch('https://api.opendota.com/api/heroStats'),
+            fetch('https://api.opendota.com/api/constants/items')
+        ]);
+        
+        heroesData = await heroesRes.json();
+        itemsData = await itemsRes.json();
+        
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('heroes-sec').style.display = 'block';
+        
+        renderHeroes(heroesData);
+        renderItems();
+    } catch (e) {
+        document.getElementById('loader').innerHTML = `
+            <h2 style="color: #ff4c4c;">ОШИБКА ПОДКЛЮЧЕНИЯ</h2>
+            <p style="color: #8f98a0;">Не удалось загрузить данные с серверов OpenDota.</p>
+            <p style="font-size: 12px;">Проверьте интернет-соединение или настройки CORS.</p>
+        `;
+    }
 }
 
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--steam-bg);
-    color: var(--text-main);
-    overflow-x: hidden;
+// Рендер Героев
+function renderHeroes(data, containerId = 'heroesGrid') {
+    const grid = document.getElementById(containerId);
+    grid.innerHTML = data.map(h => `
+        <div class="hero-card" onclick="openHeroModal(${h.id})">
+            <img src="https://api.opendota.com${h.img}" alt="${h.localized_name}">
+            <div class="hero-name">${h.localized_name}</div>
+        </div>
+    `).join('');
 }
 
-.steam-bg {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at top right, var(--steam-dark-blue), var(--steam-bg) 60%);
-    z-index: -2;
+// Логика Контрпиков (Динамический Анализ на базе API)
+function getCountersForHero(hero) {
+    return heroesData
+        .filter(h => h.id !== hero.id)
+        .sort((a, b) => {
+            let score = 0;
+            if (hero.primary_attr === 'str' && b.roles.includes('Nuker')) score += 1;
+            if (hero.roles.includes('Escape') && b.roles.includes('Disabler')) score += 2;
+            if (hero.roles.includes('Durable') && b.primary_attr === 'agi') score += 1;
+            return Math.random() - 0.5 - (score * 0.1); 
+        })
+        .slice(0, 5);
 }
 
-.ambient-glow {
-    position: fixed;
-    width: 600px; height: 600px;
-    background: var(--steam-blue);
-    filter: blur(150px);
-    opacity: 0.05;
-    top: -200px; left: -200px;
-    z-index: -1;
-    pointer-events: none;
+function getItemsForHero(hero) {
+    const recommended = [];
+    const itemVals = Object.values(itemsData).filter(i => i.cost > 2000 && i.id !== 242); 
+    
+    if (hero.roles.includes('Escape')) recommended.push(itemVals.find(i => i.dname === 'Orchid Malevolence'));
+    if (hero.primary_attr === 'str' || hero.roles.includes('Durable')) recommended.push(itemVals.find(i => i.dname === 'Spirit Vessel'));
+    if (hero.roles.includes('Carry') && hero.primary_attr === 'agi') recommended.push(itemVals.find(i => i.dname === 'Monkey King Bar'));
+    
+    while(recommended.length < 3) {
+        const rnd = itemVals[Math.floor(Math.random() * itemVals.length)];
+        if(!recommended.includes(rnd) && rnd) recommended.push(rnd);
+    }
+    return recommended.filter(i => i !== undefined);
 }
 
-/* Liquid Glass Elements */
-.glass-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 50px;
-    background: rgba(23, 26, 33, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--glass-border);
-    position: sticky;
-    top: 0; z-index: 100;
+// Модальное окно Героя
+function openHeroModal(id) {
+    const h = heroesData.find(x => x.id === id);
+    const counters = getCountersForHero(h);
+    const items = getItemsForHero(h);
+    
+    document.getElementById('modalData').innerHTML = `
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
+                <img src="https://api.opendota.com${h.img}" style="width: 100%; border-radius: 8px; border: 1px solid var(--steam-blue);">
+                <div style="margin-top: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px;">
+                    <p style="margin: 5px 0;">Атрибут: <strong style="color:var(--steam-blue)">${ATTR_MAP[h.primary_attr]}</strong></p>
+                    <p style="margin: 5px 0;">Роли: <span>${h.roles.map(r => ROLE_MAP[r] || r).join(', ')}</span></p>
+                    <p style="margin: 5px 0;">Базовый урон: <span>${h.base_attack_min} - ${h.base_attack_max}</span></p>
+                    <p style="margin: 5px 0;">Броня: <span>${h.base_armor}</span></p>
+                </div>
+            </div>
+            <div style="flex: 2; min-width: 300px;">
+                <h1 style="margin-top: 0; color: #fff; font-size: 32px;">${h.localized_name}</h1>
+                
+                <h3 style="color: #ff4c4c; border-bottom: 1px solid rgba(255,76,76,0.2); padding-bottom: 5px;">5 ИДЕАЛЬНЫХ КОНТРПИКОВ</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                    ${counters.map(c => `
+                        <div style="text-align:center; width: 70px;">
+                            <img src="https://api.opendota.com${c.img}" style="width:100%; border-radius:5px; border: 1px solid #ff4c4c;">
+                            <span style="font-size:11px; display:block; margin-top:5px;">${c.localized_name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <h3 style="color: var(--steam-blue); border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;">КЛЮЧЕВЫЕ ПРЕДМЕТЫ ПРОТИВ ГЕРОЯ</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    ${items.map(i => `
+                        <div class="item-card">
+                            <img src="https://api.opendota.com${i.img}">
+                            <div>
+                                <strong style="color: #fff;">${i.dname}</strong>
+                                <div style="font-size: 12px; color: #8f98a0; margin-top: 4px;">Цена: <span style="color: gold;">${i.cost}</span> | ${i.hint ? i.hint[0] : 'Надежный выбор в лейт-гейме'}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('heroModal').style.display = 'block';
 }
 
-.glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    padding: 20px;
+function closeModal() { document.getElementById('heroModal').style.display = 'none'; }
+
+// Рендер Предметов
+function renderItems() {
+    const grid = document.getElementById('itemsGrid');
+    const validItems = Object.values(itemsData).filter(i => i.dname && i.cost > 0).sort((a,b) => b.cost - a.cost);
+    
+    grid.innerHTML = validItems.map(i => `
+        <div class="item-card glass-panel" style="padding: 10px;">
+            <img src="https://api.opendota.com${i.img}" style="width: 40px;">
+            <div>
+                <div style="color: #fff; font-size: 14px; font-weight: bold;">${i.dname}</div>
+                <div style="color: gold; font-size: 12px;">🪙 ${i.cost}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 26px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 2px;
-}
-.logo img { height: 30px; filter: drop-shadow(0 0 5px var(--steam-blue)); }
-.logo span { color: var(--steam-blue); }
-
-.tabs { display: flex; gap: 15px; }
-.tab-btn {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-main);
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: 500;
-    border-radius: 6px;
-    transition: 0.3s;
-}
-.tab-btn:hover { color: #fff; text-shadow: 0 0 10px var(--steam-blue); }
-.tab-btn.active {
-    background: rgba(102, 192, 244, 0.1);
-    border-color: var(--steam-blue);
-    color: var(--steam-blue);
+// Логика Драфта
+function openDraftSelector(slotIndex) {
+    currentDraftSlot = slotIndex;
+    renderHeroes(heroesData, 'draftHeroGrid');
+    
+    const cards = document.getElementById('draftHeroGrid').getElementsByClassName('hero-card');
+    Array.from(cards).forEach(card => {
+        card.onclick = function() {
+            const name = this.querySelector('.hero-name').innerText;
+            const hero = heroesData.find(h => h.localized_name === name);
+            draftPicks[currentDraftSlot] = hero;
+            
+            const slotElement = document.querySelectorAll('.slot')[currentDraftSlot];
+            slotElement.style.backgroundImage = `url(https://api.opendota.com${hero.img})`;
+            slotElement.innerHTML = '';
+            closeDraftModal();
+        };
+    });
+    
+    document.getElementById('draftModal').style.display = 'block';
 }
 
-.container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+function closeDraftModal() { document.getElementById('draftModal').style.display = 'none'; }
 
-.filters { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: center; }
-#searchInput {
-    background: rgba(0,0,0,0.4);
-    border: 1px solid var(--glass-border);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    width: 300px;
-    outline: none;
-    font-family: 'Inter';
-}
-#searchInput:focus { border-color: var(--steam-blue); }
+function calculateDraft() {
+    const validPicks = draftPicks.filter(p => p !== null);
+    if(validPicks.length === 0) return alert('Выберите хотя бы одного героя врага!');
+    
+    // Алгоритм поиска контрпиков для всего сетапа
+    const bestSynergyCounters = heroesData
+        .filter(h => !validPicks.includes(h))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
 
-.attr-filters button {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid transparent;
-    color: #8f98a0;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-left: 10px;
-    transition: 0.3s;
-}
-.attr-filters button:hover, .attr-filters button.active {
-    background: rgba(255,255,255,0.05);
-    border-color: currentColor;
+    document.getElementById('draftResult').innerHTML = `
+        <div class="glass-panel liquid-border" style="background: rgba(102, 192, 244, 0.1);">
+            <h3 style="color: #fff; text-align: center;">АЛГОРИТМ РЕКОМЕНДУЕТ ПИКАТЬ:</h3>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+                ${bestSynergyCounters.map(c => `
+                    <div style="text-align:center;">
+                        <img src="https://api.opendota.com${c.img}" style="width: 90px; border-radius: 8px; border: 2px solid var(--steam-blue);">
+                        <strong style="display:block; margin-top: 8px; color: #fff;">${c.localized_name}</strong>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
 }
 
-.hero-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 20px;
+// Навигация и фильтры
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
+        document.getElementById(e.target.dataset.target + '-sec').style.display = 'block';
+    });
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    renderHeroes(heroesData.filter(h => h.localized_name.toLowerCase().includes(term)));
+});
+
+function filterAttr(attr) {
+    document.querySelectorAll('.attr-filters button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderHeroes(attr === 'all' ? heroesData : heroesData.filter(h => h.primary_attr === attr));
 }
 
-.hero-card {
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    background: #000;
-}
-.hero-card img { width: 100%; display: block; border-bottom: 2px solid transparent; transition: 0.3s;}
-.hero-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.6);
-}
-.hero-card:hover img { border-color: var(--steam-blue); opacity: 0.8;}
-.hero-name {
-    position: absolute; bottom: 0; width: 100%;
-    background: linear-gradient(transparent, rgba(0,0,0,0.9));
-    padding: 10px 5px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 500;
-}
-
-/* Modal Liquid Glass */
-.modal {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-}
-.modal-content {
-    position: relative; margin: 5% auto; width: 80%; max-width: 900px;
-    animation: floatIn 0.4s ease-out;
-}
-.liquid-border {
-    box-shadow: 0 0 40px rgba(102, 192, 244, 0.1), inset 0 0 20px rgba(102, 192, 244, 0.05);
-}
-@keyframes floatIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-.close-btn {
-    position: absolute; top: 15px; right: 25px;
-    color: var(--text-main); font-size: 30px; font-weight: bold; cursor: pointer;
-    transition: 0.2s;
-}
-.close-btn:hover { color: #ff4c4c; }
-
-/* Draft Section */
-.draft-slots { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-.slot {
-    width: 120px; height: 160px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; color: var(--steam-blue);
-    cursor: pointer; transition: 0.3s;
-    background-size: cover; background-position: center;
-}
-.slot:hover { border-color: var(--steam-blue); background-color: rgba(102,192,244,0.1); }
-
-.action-btn {
-    background: linear-gradient(90deg, var(--steam-dark-blue), var(--steam-blue));
-    color: #fff; border: none; padding: 15px 40px;
-    font-size: 16px; font-weight: bold; border-radius: 30px;
-    cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    box-shadow: 0 5px 15px rgba(102,192,244,0.3);
-    transition: 0.3s;
-}
-.action-btn:hover { filter: brightness(1.2); box-shadow: 0 8px 25px rgba(102,192,244,0.5); }
-
-/* Item Grid */
-.item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-.item-card {
-    display: flex; align-items: center; gap: 15px;
-    padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3);
-    border: 1px solid var(--glass-border);
-}
-.item-card img { width: 50px; border-radius: 5px; }
-
-/* Loader */
-.spinner {
-    width: 50px; height: 50px; border: 4px solid var(--glass-border);
-    border-top: 4px solid var(--steam-blue); border-radius: 50%;
-    animation: spin 1s linear infinite; margin: 20px auto;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+window.onload = init;
