@@ -1,112 +1,156 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Логика переключения вкладок
+    // --- 1. ТАБЫ ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Убираем active у всех
             tabBtns.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-            
-            // Добавляем active нажатому
             btn.classList.add('active');
-            const targetId = btn.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
+            document.getElementById(btn.getAttribute('data-target')).classList.add('active');
         });
     });
 
-    // 2. Детальные данные контр-пиков (Решение проблемы с "одним текстом на всех")
-    // Вместо одной строки мы храним уникальное описание и массив предметов
-    const detailedCounters = [
-        {
-            enemy: "Medusa",
-            reason: "Anti-Mage сжигает ману, которая является основным здоровьем Медузы благодаря Mana Shield. Без маны она становится очень уязвимой физической целью.",
-            items: ["manta", "diffusal_blade", "abyssal_blade"]
-        },
-        {
-            enemy: "Storm Spirit",
-            reason: "Шторм полностью зависим от маны для мобильности. Mana Void наносит колоссальный АОЕ урон по пулу маны Шторма, убивая его и его команду.",
-            items: ["orchid", "abyssal_blade", "black_king_bar"]
-        },
-        {
-            enemy: "Zeus",
-            reason: "Встроенный Counterspell дает огромное сопротивление магии, а мобильность позволяет легко сократить дистанцию до Зевса в драке.",
-            items: ["manta", "mage_slayer"]
-        }
-    ];
+    // --- 2. РАБОТА С API OPENDOTA ---
+    const OPENDOTA_URL = 'https://api.opendota.com';
+    let globalHeroes = [];
+    let globalItems = [];
 
-    // Функция рендера контр-пиков
-    const countersContainer = document.getElementById('counter-picks-container');
-    
-    function renderCounters() {
-        countersContainer.innerHTML = ''; // Очищаем контейнер
-        
-        detailedCounters.forEach(counter => {
-            // Генерируем HTML картинок предметов (используем заглушки OpenDota)
-            const itemsHtml = counter.items.map(item => 
-                `<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${item}.png" class="item-icon" title="${item}" alt="${item}">`
-            ).join('');
+    // Элементы DOM
+    const heroesGrid = document.getElementById('heroes-grid');
+    const itemsGrid = document.getElementById('items-grid');
+    const heroDetailsView = document.getElementById('hero-details-view');
+    const heroSearch = document.getElementById('hero-search');
+    const heroAttrFilter = document.getElementById('hero-attr-filter');
+    const btnBack = document.getElementById('back-to-heroes');
 
-            const counterEl = document.createElement('div');
-            counterEl.className = 'counter-item';
-            counterEl.innerHTML = `
-                <h4 class="text-blue">Против: ${counter.enemy}</h4>
-                <p>${counter.reason}</p>
-                <div class="items-row">
-                    <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Предметы: </span>
-                    ${itemsHtml}
-                </div>
-            `;
-            countersContainer.appendChild(counterEl);
-        });
-    }
-
-    renderCounters();
-
-    // 3. Интеграция API OpenDota (Пример получения актуального патча/героев)
-    async function fetchDotaData() {
+    // Инициализация загрузки данных
+    async function initData() {
         try {
-            // Это реальный публичный эндпоинт OpenDota
-            const response = await fetch('https://api.opendota.com/api/heroStats');
-            const heroes = await response.json();
-            console.log(`Успешно загружено ${heroes.length} героев из API`);
-            // Здесь можно будет написать логику заполнения сетки героев
-        } catch (error) {
-            console.error('Ошибка загрузки данных OpenDota API:', error);
+            // Грузим героев
+            const heroRes = await fetch(`${OPENDOTA_URL}/api/heroStats`);
+            globalHeroes = await heroRes.json();
+            renderHeroes(globalHeroes);
+
+            // Грузим предметы
+            const itemRes = await fetch(`${OPENDOTA_URL}/api/constants/items`);
+            const itemsData = await itemRes.json();
+            // Превращаем объект предметов в массив и фильтруем рецепты
+            globalItems = Object.values(itemsData).filter(item => item.id && item.dname);
+            renderItems(globalItems);
+        } catch (e) {
+            console.error("Ошибка загрузки данных:", e);
+            heroesGrid.innerHTML = `<div class="text-green">Ошибка подключения к API Steam/OpenDota.</div>`;
         }
     }
-    fetchDotaData();
 
-    // 4. Скелет для интеграции ИИ (Gemini / OpenAI)
-    const aiInput = document.getElementById('ai-input');
-    const aiChatBody = document.getElementById('ai-chat-body');
+    // Рендер Героев
+    function renderHeroes(heroes) {
+        heroesGrid.innerHTML = '';
+        heroes.forEach(hero => {
+            const card = document.createElement('div');
+            card.className = 'hero-card';
+            card.innerHTML = `
+                <img src="${OPENDOTA_URL}${hero.img}" loading="lazy" alt="${hero.localized_name}">
+                <span>${hero.localized_name}</span>
+            `;
+            // При клике открываем детальный анализ контр-пиков
+            card.addEventListener('click', () => openHeroDetails(hero));
+            heroesGrid.appendChild(card);
+        });
+    }
 
-    aiInput.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter' && aiInput.value.trim() !== '') {
-            const userText = aiInput.value;
+    // Рендер Предметов
+    function renderItems(items) {
+        itemsGrid.innerHTML = '';
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            // Используем steam cdn для предметов
+            const imgSrc = `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${item.name.replace('item_', '')}.png`;
+            card.innerHTML = `
+                <img src="${imgSrc}" loading="lazy" alt="${item.dname}" onerror="this.src=''">
+                <span>${item.dname}</span>
+            `;
+            itemsGrid.appendChild(card);
+        });
+    }
+
+    // --- 3. ДЕТАЛЬНЫЙ АНАЛИЗ И КОНТР-ПИКИ (ПО СТАТИСТИКЕ) ---
+    async function openHeroDetails(hero) {
+        heroesGrid.classList.add('hidden');
+        document.querySelector('.filters').classList.add('hidden');
+        heroDetailsView.classList.remove('hidden');
+
+        document.getElementById('selected-hero-name').innerText = hero.localized_name;
+        document.getElementById('selected-hero-img').src = `${OPENDOTA_URL}${hero.img}`;
+        
+        const countersContainer = document.getElementById('counter-picks-container');
+        countersContainer.innerHTML = '<p class="text-blue">Запрашиваю базу матчапов OpenDota...</p>';
+
+        try {
+            // Запрашиваем матчапы конкретного героя
+            const matchRes = await fetch(`${OPENDOTA_URL}/api/heroes/${hero.id}/matchups`);
+            let matchups = await matchRes.json();
+
+            // Фильтруем: находим тех, кому выбранный герой ЧАЩЕ ВСЕГО ПРОИГРЫВАЕТ
+            // Вычисляем винрейт врагов против нашего героя
+            matchups.forEach(m => {
+                m.enemy_winrate = (m.wins / m.games_played) * 100;
+            });
             
-            // Добавляем сообщение пользователя
-            aiChatBody.innerHTML += `<div class="msg" style="align-self: flex-end; background: rgba(255,255,255,0.1);">${userText}</div>`;
-            aiInput.value = '';
+            // Сортируем по убыванию сыгранных игр (для релевантности) и винрейту
+            matchups = matchups.filter(m => m.games_played > 10).sort((a, b) => b.enemy_winrate - a.enemy_winrate).slice(0, 5);
+
+            countersContainer.innerHTML = '';
             
-            // Имитация "печатает..."
-            const typingId = 'typing-' + Date.now();
-            aiChatBody.innerHTML += `<div id="${typingId}" class="msg ai-msg text-green">Анализирую данные патча...</div>`;
-            aiChatBody.scrollTop = aiChatBody.scrollHeight;
+            matchups.forEach(match => {
+                // Находим данные врага в глобальной базе
+                const enemy = globalHeroes.find(h => h.id === match.hero_id);
+                if(!enemy) return;
 
-            // ВАЖНО: Здесь в будущем будет твой fetch-запрос к твоему backend-серверу, 
-            // который по защищенному каналу обращается к API Gemini.
-            /* Пример реального вызова в будущем:
-               const aiResponse = await fetch('/api/ask-gemini', { method: 'POST', body: JSON.stringify({ query: userText }) });
-               const result = await aiResponse.json();
-            */
+                const winrate = match.enemy_winrate.toFixed(1);
+                const el = document.createElement('div');
+                el.className = 'counter-item';
+                el.innerHTML = `
+                    <img src="${OPENDOTA_URL}${enemy.img}" class="hero-avatar-fixed" style="width: 80px; height: 45px;" alt="${enemy.localized_name}">
+                    <div class="counter-stats">
+                        <h4 class="text-blue">${enemy.localized_name}</h4>
+                        <p style="font-size: 12px; color: var(--text-muted);">Винрейт против ${hero.localized_name}: <strong>${winrate}%</strong> (Игр: ${match.games_played})</p>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" style="width: ${winrate}%;"></div>
+                        </div>
+                    </div>
+                `;
+                countersContainer.appendChild(el);
+            });
 
-            setTimeout(() => {
-                document.getElementById(typingId).innerHTML = `Я обработал запрос. Для контры этого пика советую взять Axe в оффлейн. Он пробивает сквозь BKB.`;
-                aiChatBody.scrollTop = aiChatBody.scrollHeight;
-            }, 1500);
+        } catch (e) {
+            countersContainer.innerHTML = '<p style="color: red;">Ошибка загрузки матчапов.</p>';
         }
+    }
+
+    // Возврат назад к списку героев
+    btnBack.addEventListener('click', () => {
+        heroDetailsView.classList.add('hidden');
+        heroesGrid.classList.remove('hidden');
+        document.querySelector('.filters').classList.remove('hidden');
     });
+
+    // --- 4. ПОИСК И ФИЛЬТРЫ ---
+    heroSearch.addEventListener('input', (e) => {
+        const text = e.target.value.toLowerCase();
+        const filtered = globalHeroes.filter(h => h.localized_name.toLowerCase().includes(text));
+        renderHeroes(filtered);
+    });
+
+    document.getElementById('item-search').addEventListener('input', (e) => {
+        const text = e.target.value.toLowerCase();
+        const filtered = globalItems.filter(i => i.dname.toLowerCase().includes(text));
+        renderItems(filtered);
+    });
+
+    // Запускаем сборку данных
+    initData();
 });
