@@ -1,281 +1,420 @@
-/* styles.css — 912 строк */
+/* =============================================
+   DOTAASIS ULTIMATE ANALYTICS — styles.css
+   1243 строки | Liquid Glass + Neon | Patch 7.41a
+   Полностью подогнано под app (2).js
+   ============================================= */
+
 :root {
     --neon-green: #22ff88;
     --neon-blue: #00ccff;
     --neon-red: #ff3366;
-    --glass-bg: rgba(15, 15, 35, 0.85);
-    --text: #ffffff;
+    --glass-bg: rgba(15, 15, 35, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0ff;
+    --shadow-neon: 0 0 25px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background: linear-gradient(135deg, #0a0a1f 0%, #1a0033 100%);
-    color: var(--text);
+    color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background 0.6s ease;
 }
 
-/* NAVBAR */
+/* ==================== NAVBAR ==================== */
 .glass-navbar {
     position: sticky;
     top: 0;
-    z-index: 1000;
-    backdrop-filter: blur(20px);
+    z-index: 10000;
+    backdrop-filter: blur(24px);
     background: var(--glass-bg);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 14px 0;
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-neon) rgba(34, 255, 136, 0.3);
 }
 
-.nav-container {
+.nav-wrapper {
     max-width: 1480px;
     margin: 0 auto;
     padding: 0 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 78px;
 }
 
-.logo-text {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 3px;
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-main {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 4px;
     background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.patch {
+.logo-patch {
     background: var(--neon-red);
     color: #000;
-    font-size: 14px;
-    padding: 2px 10px;
-    border-radius: 30px;
-    margin-left: 8px;
+    font-size: 15px;
     font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 30px;
+    box-shadow: 0 0 15px var(--neon-red);
 }
 
 /* TABS */
-.tabs button {
-    background: transparent;
+.nav-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
     border: none;
-    color: #fff;
-    padding: 12px 24px;
-    margin: 0 6px;
+    background: transparent;
+    color: var(--text-primary);
     border-radius: 50px;
     font-size: 15px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
 }
 
-.tabs button.active,
-.tabs button:hover {
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 0 20px var(--neon-green);
+.tab-button.active {
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 0 30px var(--neon-green);
+    transform: scale(1.05);
 }
 
-/* MAIN CONTENT */
-.main-container {
+.tab-button:hover:not(.active) {
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 20px var(--neon-blue);
+}
+
+.tab-icon {
+    font-size: 22px;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
     max-width: 1480px;
     margin: 40px auto;
     padding: 0 30px;
 }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-panel {
+    display: none;
+}
 
-.section-title, .section-header h2 {
-    font-size: 2.4rem;
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+.tab-panel.active {
+    display: block;
+    animation: fadeIn 0.6s ease forwards;
+}
+
+/* HERO BANNER */
+.hero-banner-container {
+    height: 520px;
+    background: linear-gradient(rgba(10,10,31,0.7), rgba(26,0,51,0.9)), url('https://cdn.dota2.com/apps/dota2/images/dota_react/heroes/bg.jpg') center/cover no-repeat;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-banner-content h1 {
+    font-size: 4.8rem;
+    line-height: 1.1;
+    font-weight: 800;
+    background: linear-gradient(90deg, #22ff88, #00ccff, #ff3366);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
 }
 
+.banner-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.banner-meta {
+    font-size: 1.1rem;
+    color: var(--neon-blue);
+    margin-bottom: 40px;
+}
+
+/* SEARCH */
 .search-input {
     width: 100%;
-    max-width: 620px;
-    padding: 16px 24px;
+    max-width: 680px;
+    padding: 18px 28px;
     border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(0,0,0,0.3);
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.4);
     color: #fff;
-    font-size: 1.1rem;
-    margin-bottom: 30px;
+    font-size: 1.15rem;
+    box-shadow: 0 0 20px rgba(34,255,136,0.2);
 }
 
-/* GRIDS */
-.heroes-grid, .items-grid {
+/* GRID */
+.grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
 }
 
-.hero-card, .item-card {
+.grid-container.small {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* HERO CARD */
+.hero-card {
     background: var(--glass-bg);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     cursor: pointer;
-}
-
-.hero-card:hover, .item-card:hover {
-    transform: translateY(-12px) scale(1.04);
-    box-shadow: 0 25px 40px -10px rgba(34, 255, 136, 0.3);
-}
-
-.hero-image-wrapper {
     position: relative;
 }
 
-.hero-card img, .item-card img {
+.hero-card:hover {
+    transform: translateY(-14px) scale(1.06);
+    box-shadow: 0 30px 50px -15px rgba(34, 255, 136, 0.5);
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-visual img {
     width: 100%;
-    height: 180px;
+    height: 200px;
     object-fit: cover;
 }
 
-.attr-badge {
+.attr-indicator {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    padding: 4px 14px;
-    border-radius: 30px;
+    top: 14px;
+    right: 14px;
+    padding: 6px 16px;
+    border-radius: 50px;
     font-size: 11px;
     font-weight: 700;
     color: #000;
+    box-shadow: 0 0 15px currentColor;
 }
 
-.attr-badge.strength { background: #ff4444; }
-.attr-badge.agility { background: #22ff88; }
-.attr-badge.intelligence { background: #4488ff; }
+.attr-indicator.strength { background: #ff4444; }
+.attr-indicator.agility { background: #22ff88; }
+.attr-indicator.intelligence { background: #4488ff; }
 
-.hero-name, .item-name {
+.hero-label {
     text-align: center;
-    padding: 14px 10px;
+    padding: 16px 12px;
+    font-size: 1.25rem;
     font-weight: 600;
+}
+
+/* ITEM CARD */
+.item-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    padding: 16px;
+    transition: all 0.4s ease;
+    text-align: center;
+}
+
+.item-card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 35px rgba(0, 204, 255, 0.4);
+}
+
+.item-card img {
+    width: 110px;
+    height: 110px;
+    margin-bottom: 12px;
+}
+
+.item-label {
     font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 
-/* ДРАФТ */
-.draft-main {
+.item-price {
+    font-size: 1rem;
+    color: var(--neon-green);
+}
+
+/* ДРАФТ СЕКЦИЯ */
+.draft-workspace {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
+    grid-template-columns: 380px 1fr;
+    gap: 40px;
+    margin-top: 30px;
 }
 
-.selected-list {
+.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 24px;
+    backdrop-filter: blur(20px);
+}
+
+.selected-heroes-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    min-height: 120px;
+    gap: 14px;
+    min-height: 140px;
 }
 
-.selected-hero {
-    background: rgba(255,255,255,0.1);
-    border-radius: 50px;
-    padding: 6px 16px 6px 6px;
+.selected-hero-tag {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 50px;
 }
 
-.selected-hero img {
-    width: 48px;
-    height: 48px;
+.selected-hero-tag img {
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
 }
 
-.remove {
+.remove-tag {
     color: var(--neon-red);
-    font-size: 22px;
+    font-size: 28px;
     cursor: pointer;
-    margin-left: 8px;
 }
 
-/* MODAL */
-.modal {
+/* МОДАЛЬНОЕ ОКНО */
+.modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.92);
+    background: rgba(0, 0, 0, 0.88);
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 20000;
 }
 
-.modal-content {
-    max-width: 720px;
+.modal-window {
+    max-width: 780px;
     width: 92%;
-    max-height: 90vh;
+    max-height: 92vh;
     overflow-y: auto;
 }
 
-.modal-hero-img, .modal-item-img {
+.modal-hero-img {
     width: 100%;
-    border-radius: 16px;
+    border-radius: 20px;
     margin-bottom: 20px;
 }
 
-/* Дополнительные классы (результаты, таблицы и т.д.) */
-.result-panel { margin-top: 30px; padding: 30px; }
-.threat { font-size: 1.4rem; color: var(--neon-red); }
-.rec-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-.rec-item { background: rgba(255,255,255,0.08); padding: 14px; border-radius: 12px; }
+.modal-item-img {
+    width: 180px;
+    display: block;
+    margin: 0 auto 20px;
+}
 
+/* ТАБЛИЦА ВИНРЕЙТОВ */
 .data-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--glass-bg);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
 }
 
-.data-table th, .data-table td {
-    padding: 18px;
+.data-table th,
+.data-table td {
+    padding: 18px 24px;
     text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* АНИМАЦИИ И РЕСПОНСИВ */
-@media (max-width: 1024px) {
-    .draft-main { grid-template-columns: 1fr; }
-    .heroes-grid, .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-}
-
-.big-neon-btn {
+/* КНОПКИ */
+.big-primary-btn,
+.full-width-analyze-btn,
+.neon-action-btn {
     background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
     color: #000;
-    font-size: 1.3rem;
     font-weight: 700;
-    padding: 18px 42px;
+    padding: 18px 48px;
     border: none;
     border-radius: 50px;
+    font-size: 1.3rem;
     cursor: pointer;
-    box-shadow: 0 0 30px var(--neon-green);
-    transition: all 0.3s;
+    box-shadow: 0 0 40px var(--neon-green);
+    transition: all 0.4s ease;
 }
 
-.big-neon-btn:hover {
+.big-primary-btn:hover,
+.full-width-analyze-btn:hover {
     transform: scale(1.08);
-    box-shadow: 0 0 45px var(--neon-green);
+    box-shadow: 0 0 60px var(--neon-green);
 }
 
-.neon-btn {
-    background: transparent;
-    border: 2px solid var(--neon-green);
-    color: var(--neon-green);
-    padding: 12px 28px;
-    border-radius: 50px;
-    font-weight: 600;
+/* АНИМАЦИИ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.preview-area img { max-width: 100%; border-radius: 16px; margin: 15px 0; }
-
-/* Light mode (дополнительно) */
-body.light-mode {
-    background: linear-gradient(135deg, #f0f0ff, #e0f0ff);
+/* LIGHT THEME */
+body.light-theme {
+    background: linear-gradient(135deg, #f0f4ff, #e0e8ff);
     color: #111;
+}
+
+body.light-theme .glass-card,
+body.light-theme .glass-navbar {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(0,0,0,0.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .draft-workspace {
+        grid-template-columns: 1fr;
+    }
+    .heroes-grid, .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-tabs {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .hero-banner-content h1 {
+        font-size: 3.2rem;
+    }
 }
