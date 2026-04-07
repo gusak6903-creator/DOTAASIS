@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOTAASIS | ULTIMATE ANALYTICS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-bg"></div>
+    
+    <nav class="glass-nav">
+        <div class="logo">DOTA<span>ASIS</span></div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="showSection('heroes')">ГЕРОИ</button>
+            <button class="nav-btn" onclick="showSection('items')">ПРЕДМЕТЫ</button>
+            <button class="nav-btn" onclick="showSection('draft')">ДРАФТ-ПОМОЩНИК</button>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <section id="heroes-section" class="content-section">
+            <div class="search-bar glass">
+                <input type="text" id="heroSearch" placeholder="Поиск героя по имени..." oninput="filterHeroes()">
+            </div>
+            <div class="hero-grid" id="heroGrid"></div>
+        </section>
+
+        <section id="items-section" class="content-section" style="display:none;">
+            <div class="item-categories">
+                <button class="cat-btn active" onclick="filterItems('all')">Все</button>
+                <button class="cat-btn" onclick="filterItems('basic')">Обычные</button>
+                <button class="cat-btn" onclick="filterItems('neutral')">Нейтральные</button>
+            </div>
+            <div class="item-grid" id="itemGrid"></div>
+        </section>
+
+        <section id="draft-section" class="content-section" style="display:none;">
+            <div class="draft-container glass">
+                <h2>АНАЛИЗАТОР ВРАЖЕСКОГО ПИКА</h2>
+                <p>Выберите 5 героев противника:</p>
+                <div class="draft-slots" id="draftSlots">
+                    <div class="slot" onclick="openPicker(0)">+</div>
+                    <div class="slot" onclick="openPicker(1)">+</div>
+                    <div class="slot" onclick="openPicker(2)">+</div>
+                    <div class="slot" onclick="openPicker(3)">+</div>
+                    <div class="slot" onclick="openPicker(4)">+</div>
+                </div>
+                <button class="analyze-btn" onclick="analyzeDraft()">АНАЛИЗИРОВАТЬ</button>
+                <div id="draftResult" class="result-box"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content glass" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
