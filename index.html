@@ -3,70 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTAASIS | PREMIUM ANALYTICS</title>
+    <title>DOTAASIS PRO | Аналитика 7.41a</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="main-overlay"></div>
-    
-    <nav class="glass-nav">
-        <div class="logo">DOTA<span>ASIS</span></div>
-        <div class="nav-group">
-            <button class="nav-link active" data-sec="heroes">ГЕРОИ</button>
-            <button class="nav-link" data-sec="items">ПРЕДМЕТЫ</button>
-            <button class="nav-link draft-btn" data-sec="draft">ДРАФТ-АНАЛИТИК</button>
-        </div>
-    </nav>
-
-    <div id="loader" class="loader-wrap">
-        <div class="spinner"></div>
-        <p>ЗАГРУЗКА ДАННЫХ VALVE...</p>
+    <div class="background-effects">
+        <div class="blob radiant"></div>
+        <div class="blob dire"></div>
     </div>
 
-    <main class="container">
-        <section id="heroes-sec" class="page active">
-            <div class="search-wrap fade-in">
-                <input type="text" id="heroSearch" placeholder="Найти персонажа...">
-                <div class="filter-group">
-                    <button onclick="filterAttr('all')" class="f-btn active">Все</button>
-                    <button onclick="filterAttr('str')" class="f-btn">Сила</button>
-                    <button onclick="filterAttr('agi')" class="f-btn">Ловкость</button>
-                    <button onclick="filterAttr('int')" class="f-btn">Интеллект</button>
+    <header class="main-header glass">
+        <div class="logo">DOTA<span>ASIS</span> <small>v7.41a</small></div>
+        <nav class="nav-menu">
+            <button class="nav-item active" data-target="heroes-view">ГЕРОИ</button>
+            <button class="nav-item" data-target="items-view">АРСЕНАЛ</button>
+            <button class="nav-item pro-gradient" data-target="draft-view">ДРАФТ-ИНТЕЛЛЕКТ</button>
+        </nav>
+        <div class="api-status">
+            <span id="status-dot"></span> <span id="status-text">ПОДКЛЮЧЕНИЕ К OPENDOTA...</span>
+        </div>
+    </header>
+
+    <main class="content-wrapper">
+        <section id="heroes-view" class="active">
+            <div class="control-panel glass">
+                <div class="search-box">
+                    <input type="text" id="hero-find" placeholder="Введите имя героя...">
+                </div>
+                <div class="attr-tabs">
+                    <button class="attr-btn active" data-attr="all">ВСЕ</button>
+                    <button class="attr-btn" data-attr="str">СИЛА</button>
+                    <button class="attr-btn" data-attr="agi">ЛОВКОСТЬ</button>
+                    <button class="attr-btn" data-attr="int">ИНТЕЛЛЕКТ</button>
+                    <button class="attr-btn" data-attr="uni">УНИВЕРСАЛ</button>
                 </div>
             </div>
-            <div class="grid" id="heroesGrid"></div>
+            <div class="hero-grid" id="main-grid"></div>
         </section>
 
-        <section id="items-sec" class="page">
-            <div class="grid" id="itemsGrid"></div>
-        </section>
-
-        <section id="draft-sec" class="page">
-            <div class="draft-board glass">
-                <h2>АНАЛИЗАТОР ПИКА</h2>
-                <div class="slots-row">
-                    <div class="d-slot" onclick="openDraftSelector(0)">+</div>
-                    <div class="d-slot" onclick="openDraftSelector(1)">+</div>
-                    <div class="d-slot" onclick="openDraftSelector(2)">+</div>
-                    <div class="d-slot" onclick="openDraftSelector(3)">+</div>
-                    <div class="d-slot" onclick="openDraftSelector(4)">+</div>
+        <section id="draft-view">
+            <div class="draft-container">
+                <div class="enemy-side glass">
+                    <h2 class="side-title dire-text">ВРАЖЕСКИЙ ПИК (DIRE)</h2>
+                    <div class="role-slots">
+                        <div class="role-card glass" onclick="pickForRole(1)">
+                            <div class="role-icon">1</div>
+                            <div class="role-label">CARRY</div>
+                            <div class="slot-preview" id="slot-1"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(2)">
+                            <div class="role-icon">2</div>
+                            <div class="role-label">MID</div>
+                            <div class="slot-preview" id="slot-2"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(3)">
+                            <div class="role-icon">3</div>
+                            <div class="role-label">OFFLANE</div>
+                            <div class="slot-preview" id="slot-3"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(4)">
+                            <div class="role-icon">4</div>
+                            <div class="role-label">SUPPORT</div>
+                            <div class="slot-preview" id="slot-4"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(5)">
+                            <div class="role-icon">5</div>
+                            <div class="role-label">HARD SUPP</div>
+                            <div class="slot-preview" id="slot-5"></div>
+                        </div>
+                    </div>
+                    <button class="analyze-trigger" onclick="runProAnalysis()">ЗАПУСТИТЬ AI АНАЛИЗ</button>
                 </div>
-                <button class="big-btn" onclick="runAnalysis()">РАССЧИТАТЬ КОНТРПИК</button>
-                <div id="draftOutput"></div>
+
+                <div class="analysis-results" id="analysis-box">
+                    <div class="placeholder-text">Выберите героев противника для расчета контрпиков</div>
+                </div>
             </div>
+        </section>
+        
+        <section id="items-view">
+            <div class="item-grid" id="item-grid"></div>
         </section>
     </main>
 
-    <div id="heroModal" class="modal-overlay" onclick="closeModal('heroModal')">
-        <div class="modal-content glass" onclick="event.stopPropagation()">
-            <div id="modalContent"></div>
+    <div id="pro-modal" class="modal-overlay">
+        <div class="modal-window glass">
+            <button class="close-modal">&times;</button>
+            <div id="modal-content"></div>
         </div>
     </div>
 
-    <div id="selectorModal" class="modal-overlay" onclick="closeModal('selectorModal')">
-        <div class="modal-content glass list-modal">
-            <div class="grid small-grid" id="selectorGrid"></div>
+    <div id="selector-modal" class="modal-overlay">
+        <div class="modal-window glass selection-window">
+            <h3>ВЫБЕРИТЕ ГЕРОЯ ДЛЯ ПОЗИЦИИ</h3>
+            <div class="selection-grid" id="selection-grid"></div>
         </div>
     </div>
 
