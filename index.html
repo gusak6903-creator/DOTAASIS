@@ -4,283 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DOTAASIS ULTIMATE | ANALYTICS 7.41a</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;400;700;900&family=Orbitron:wght@400;700;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;800;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="liquid-engine-active">
+<body class="liquid-glass-theme">
 
-    <svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg">
+    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
         <defs>
-            <filter id="liquid-blur">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="liquid" />
-                <feComposite in="SourceGraphic" in2="liquid" operator="atop" />
+            <filter id="glass-blur">
+                <feGaussianBlur stdDeviation="15" result="blur" />
+                <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="glow" />
+                <feBlend in="SourceGraphic" in2="glow" mode="normal" />
             </filter>
-            <linearGradient id="cyan-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#00f2ff;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#0066ff;stop-opacity:1" />
-            </linearGradient>
         </defs>
     </svg>
 
-    <div class="background-canvas">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-        <div class="blob blob-4"></div>
-        <div class="noise-overlay"></div>
+    <div class="ambient-background">
+        <div class="ambient-orb orb-cyan"></div>
+        <div class="ambient-orb orb-emerald"></div>
+        <div class="ambient-orb orb-dark"></div>
+        <div class="grid-overlay"></div>
     </div>
 
-    <div class="app-container">
+    <header class="top-nav-bar glass-panel">
+        <div class="nav-left">
+            <div class="brand-logo">
+                <span class="logo-core">DOTA</span><span class="logo-accent">ASIS</span>
+                <span class="patch-version">v7.41a</span>
+            </div>
+        </div>
         
-        <header class="main-header glass-ui">
-            <div class="header-inner">
-                <div class="logo-zone">
-                    <div class="logo-icon">
-                        <svg viewBox="0 0 100 100" class="svg-logo">
-                            <path d="M10 10 L90 10 L90 90 L10 90 Z" fill="none" stroke="url(#cyan-grad)" stroke-width="2"/>
-                            <path d="M20 20 L80 80 M80 20 L20 80" stroke="#00f2ff" stroke-width="8" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    <div class="logo-text">
-                        <h1 class="glitch-text" data-text="DOTAASIS">DOTAASIS</h1>
-                        <span class="version-tag">SUPREME ANALYTICS v7.41a</span>
-                    </div>
+        <nav class="main-tabs">
+            <button class="tab-btn active" data-target="tab-heroes">ГЕРОИ</button>
+            <button class="tab-btn" data-target="tab-items">АРСЕНАЛ</button>
+            <button class="tab-btn" data-target="tab-draft">ДРАФТ-ЦЕНТР</button>
+            <button class="tab-btn" data-target="tab-oracle">AI ОРАКУЛ</button>
+        </nav>
+
+        <div class="nav-right">
+            <div class="user-profile">
+                <div class="user-details">
+                    <span class="user-nick">аварийный</span>
+                    <span class="system-status">System Online</span>
                 </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+    </header>
 
-                <nav class="navigation-hub">
-                    <ul class="nav-list">
-                        <li class="nav-item active" data-tab="heroes-tab">
-                            <button class="tab-trigger">
-                                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11L12 2zm0 14l5.5-9h-11L12 16z" fill="currentColor"/></svg>
-                                <span>ГЕРОИ</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" data-tab="items-tab">
-                            <button class="tab-trigger">
-                                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.44c-.16.09-.34.14-.5.14s-.34-.05-.5-.14l-7.97-4.44C3.21 17.21 3 16.88 3 16.5v-9c0-.38.21-.71.53-.88l7.97-4.44c.16-.09.34-.14.5-.14s.34.05.5.14l7.97 4.44c.32.17.53.5.53.88v9z" fill="currentColor"/></svg>
-                                <span>АРСЕНАЛ</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" data-tab="draft-tab">
-                            <button class="tab-trigger">
-                                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-4v-4h4v4zm0-6h-4V7h4v4z" fill="currentColor"/></svg>
-                                <span>ДРАФТ-АНАЛИЗ</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" data-tab="oracle-tab">
-                            <button class="tab-trigger">
-                                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
-                                <span>AI ОРАКУЛ</span>
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-
-                <div class="user-block glass-ui">
-                    <div class="user-meta">
-                        <span class="user-name">аварийный</span>
-                        <span class="user-rank">IMMORTAL RANK</span>
-                    </div>
-                    <div class="user-avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=аварийный')"></div>
+    <main class="app-viewport">
+        
+        <section id="tab-heroes" class="view-section active">
+            <div class="control-deck glass-panel">
+                <div class="search-box">
+                    <input type="text" id="hero-search" placeholder="Поиск защитника древних...">
+                </div>
+                <div class="filter-matrix">
+                    <button class="filter-chip active" data-attr="all">ВСЕ</button>
+                    <button class="filter-chip" data-attr="strength">СИЛА</button>
+                    <button class="filter-chip" data-attr="agility">ЛОВКОСТЬ</button>
+                    <button class="filter-chip" data-attr="intelligence">ИНТЕЛЛЕКТ</button>
                 </div>
             </div>
-        </header>
-
-        <main class="content-viewport">
             
-            <section id="heroes-tab" class="tab-view active">
-                <div class="search-bar-container glass-ui">
-                    <div class="search-field">
-                        <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="white"/></svg>
-                        <input type="text" id="hero-search" placeholder="Поиск по героям патча 7.41a...">
+            <div class="scroll-container">
+                <div id="hero-grid" class="dynamic-grid"></div>
+            </div>
+        </section>
+
+        <section id="tab-items" class="view-section">
+            <div class="control-deck glass-panel">
+                <div class="search-box">
+                    <input type="text" id="item-search" placeholder="Поиск артефакта...">
+                </div>
+            </div>
+            
+            <div class="scroll-container">
+                <div id="item-grid" class="dynamic-grid item-specific-grid"></div>
+            </div>
+        </section>
+
+        <section id="tab-draft" class="view-section">
+            <div class="draft-dashboard">
+                
+                <div class="draft-panel glass-panel">
+                    <div class="panel-header">
+                        <h2>ВРАЖЕСКИЙ ПИК (DIRE)</h2>
+                        <button class="action-btn" id="btn-analyze">АНАЛИЗИРОВАТЬ</button>
                     </div>
                     
-                    <div class="filter-matrix">
-                        <div class="filter-group">
-                            <span class="group-label">АТРИБУТ</span>
-                            <div class="btn-cluster" id="attr-filters">
-                                <button class="filter-btn active" data-filter="all">ВСЕ</button>
-                                <button class="filter-btn str" data-filter="str">
-                                    <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_strength.png" alt="">
-                                </button>
-                                <button class="filter-btn agi" data-filter="agi">
-                                    <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_agility.png" alt="">
-                                </button>
-                                <button class="filter-btn int" data-filter="int">
-                                    <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_intelligence.png" alt="">
-                                </button>
-                                <button class="filter-btn uni" data-filter="uni">
-                                    <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_universal.png" alt="">
-                                </button>
-                            </div>
+                    <div class="draft-slots-wrapper" id="draft-slots-container">
+                        <div class="pick-slot empty" data-slot="0">
+                            <div class="slot-badge">POS 1</div>
+                            <div class="slot-content">ВЫБРАТЬ POS 1</div>
+                            <button class="slot-clear">&times;</button>
                         </div>
-
-                        <div class="filter-group">
-                            <span class="group-label">РОЛЬ В МЕТЕ</span>
-                            <div class="btn-cluster" id="role-filters">
-                                <button class="role-node" data-role="Carry">POS 1</button>
-                                <button class="role-node" data-role="Midlane">POS 2</button>
-                                <button class="role-node" data-role="Offlane">POS 3</button>
-                                <button class="role-node" data-role="Support">POS 4/5</button>
-                            </div>
+                        <div class="pick-slot empty" data-slot="1">
+                            <div class="slot-badge">POS 2</div>
+                            <div class="slot-content">ВЫБРАТЬ POS 2</div>
+                            <button class="slot-clear">&times;</button>
+                        </div>
+                        <div class="pick-slot empty" data-slot="2">
+                            <div class="slot-badge">POS 3</div>
+                            <div class="slot-content">ВЫБРАТЬ POS 3</div>
+                            <button class="slot-clear">&times;</button>
+                        </div>
+                        <div class="pick-slot empty" data-slot="3">
+                            <div class="slot-badge">POS 4</div>
+                            <div class="slot-content">ВЫБРАТЬ POS 4</div>
+                            <button class="slot-clear">&times;</button>
+                        </div>
+                        <div class="pick-slot empty" data-slot="4">
+                            <div class="slot-badge">POS 5</div>
+                            <div class="slot-content">ВЫБРАТЬ POS 5</div>
+                            <button class="slot-clear">&times;</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="hero-scroll-wrapper">
-                    <div id="hero-grid" class="hero-dynamic-grid">
-                        </div>
-                </div>
-            </section>
-
-            <section id="items-tab" class="tab-view">
-                <div class="items-interface">
-                    <aside class="items-sidebar glass-ui">
-                        <div class="item-search-box">
-                            <input type="text" id="item-search" placeholder="Поиск предмета...">
-                        </div>
-                        <ul class="item-categories-list">
-                            <li class="cat-item active" data-cat="all">Все артефакты</li>
-                            <li class="cat-item" data-cat="consumables">Расходники</li>
-                            <li class="cat-item" data-cat="attributes">Атрибуты</li>
-                            <li class="cat-item" data-cat="equipment">Снаряжение</li>
-                            <li class="cat-item" data-cat="artifacts">Артефакты</li>
-                            <li class="cat-item" data-cat="neutral">Нейтральные</li>
-                        </ul>
-                    </aside>
-                    <div class="items-main-area">
-                        <div id="item-grid" class="item-dynamic-grid">
-                            </div>
+                <div class="analysis-panel glass-panel">
+                    <div class="panel-header">
+                        <h2>ОТЧЕТ АНАЛИТИКИ</h2>
+                    </div>
+                    <div id="analysis-results" class="analysis-content scroll-container">
+                        <div class="empty-state">Ожидание данных драфта...</div>
                     </div>
                 </div>
-            </section>
 
-            <section id="draft-tab" class="tab-view">
-                <div class="draft-intelligence-grid">
-                    <div class="draft-column enemy-team glass-ui">
-                        <div class="column-header">
-                            <h2>ВРАЖЕСКИЙ СОСТАВ</h2>
-                            <span class="threat-indicator low">УГРОЗА: МИНИМАЛЬНАЯ</span>
-                        </div>
-                        
-                        <div class="draft-slots-stack">
-                            <div class="pick-slot empty" data-slot="1">
-                                <div class="slot-info">
-                                    <span class="pos-tag">POS 1</span>
-                                    <span class="hero-name-placeholder">ВЫБЕРИТЕ КЕРРИ</span>
-                                </div>
-                                <div class="slot-add-btn">+</div>
-                            </div>
-                            <div class="pick-slot empty" data-slot="2">
-                                <div class="slot-info">
-                                    <span class="pos-tag">POS 2</span>
-                                    <span class="hero-name-placeholder">ВЫБЕРИТЕ МИД</span>
-                                </div>
-                                <div class="slot-add-btn">+</div>
-                            </div>
-                            <div class="pick-slot empty" data-slot="3">
-                                <div class="slot-info">
-                                    <span class="pos-tag">POS 3</span>
-                                    <span class="hero-name-placeholder">ВЫБЕРИТЕ ОФФЛЕЙН</span>
-                                </div>
-                                <div class="slot-add-btn">+</div>
-                            </div>
-                            <div class="pick-slot empty" data-slot="4">
-                                <div class="slot-info">
-                                    <span class="pos-tag">POS 4</span>
-                                    <span class="hero-name-placeholder">ВЫБЕРИТЕ САППОРТА</span>
-                                </div>
-                                <div class="slot-add-btn">+</div>
-                            </div>
-                            <div class="pick-slot empty" data-slot="5">
-                                <div class="slot-info">
-                                    <span class="pos-tag">POS 5</span>
-                                    <span class="hero-name-placeholder">ВЫБЕРИТЕ ФУЛЛ-САП</span>
-                                </div>
-                                <div class="slot-add-btn">+</div>
-                            </div>
-                        </div>
-
-                        <button class="mega-analyze-btn" id="start-analysis">ЗАПУСТИТЬ НЕЙРО-АНАЛИЗ 7.41a</button>
-                    </div>
-
-                    <div class="draft-column analysis-report glass-ui">
-                        <div class="column-header">
-                            <h2>ОТЧЕТ ОРАКУЛА</h2>
-                        </div>
-                        <div id="analysis-results" class="analysis-content">
-                            <div class="analysis-empty-state">
-                                <svg viewBox="0 0 24 24" class="empty-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="white" opacity="0.3"/></svg>
-                                <p>Ожидание завершения вражеского пика для формирования стратегии...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="oracle-tab" class="tab-view">
-                <div class="oracle-container glass-ui">
-                    <div class="oracle-sidebar">
-                        <div class="ai-status-card">
-                            <div class="status-pulse"></div>
-                            <span>ORACLE LINK ACTIVE</span>
-                        </div>
-                        <div class="ai-stats-list">
-                            <div class="ai-stat-item">
-                                <span class="stat-label">МАТЧЕЙ В БАЗЕ</span>
-                                <span class="stat-val">1.4M+</span>
-                            </div>
-                            <div class="ai-stat-item">
-                                <span class="stat-label">ТОЧНОСТЬ</span>
-                                <span class="stat-val">94.2%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="oracle-chat-zone">
-                        <div id="oracle-messages" class="messages-viewport">
-                            <div class="msg system">Приветствую, аварийный. Канал связи с OpenDota установлен. Я готов анализировать мету 7.41a.</div>
-                        </div>
-                        <div class="chat-input-wrapper">
-                            <input type="text" id="oracle-input" placeholder="Задайте вопрос по мете или контрпику...">
-                            <button id="send-btn">АНАЛИЗ</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <div id="modal-overlay" class="modal-system">
-            <div class="modal-content glass-ui liquid-blur">
-                <button id="close-modal" class="modal-close-btn">&times;</button>
-                <div id="modal-body">
-                    </div>
             </div>
-        </div>
+        </section>
 
+        <section id="tab-oracle" class="view-section">
+            <div class="oracle-terminal glass-panel">
+                <div class="terminal-header">Neural Link: ACTIVE</div>
+                <div class="chat-log" id="oracle-chat">
+                    <div class="chat-msg ai">
+                        <span class="sender">ORACLE:</span>
+                        <span class="text">Синхронизация завершена. Готов разобрать любую сборку.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="info-modal" class="modal-overlay">
+        <div class="modal-card glass-panel">
+            <button class="modal-close" onclick="UI.closeModal('info-modal')">&times;</button>
+            <div id="modal-content-body"></div>
+        </div>
     </div>
 
-    <footer class="system-footer glass-ui">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h4>PATCH 7.41a HIGHLIGHTS</h4>
-                <ul>
-                    <li>Изменение баланса Universal героев.</li>
-                    <li>Корректировка базового урона Roshan.</li>
-                    <li>Обновление таймингов Neutral Items.</li>
-                </ul>
+    <div id="picker-modal" class="modal-overlay">
+        <div class="modal-card glass-panel picker-card">
+            <div class="modal-header">
+                <h2>ВЫБЕРИТЕ ГЕРОЯ В СЛОТ</h2>
+                <button class="modal-close" onclick="UI.closeModal('picker-modal')">&times;</button>
             </div>
-            <div class="footer-col">
-                <h4>DATA STATUS</h4>
-                <p>OpenDota API: <span class="status-ok">CONNECTED</span></p>
-                <p>Valve Assets: <span class="status-ok">CACHED</span></p>
+            <div class="scroll-container">
+                <div id="picker-grid" class="dynamic-grid"></div>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script src="app (2).js"></script>
+    <script src="bridge.js"></script>
 </body>
 </html>
