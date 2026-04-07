@@ -7,308 +7,404 @@
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
     </style>
 </head>
 <body>
     <!-- NAVBAR -->
     <nav class="glass-navbar">
-        <div class="logo">
-            <span class="neon-green">DOTAASIS</span>
-            <span class="neon-red">7.41a</span>
-        </div>
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="home">🏠 Главная</button>
-            <button class="tab-btn" data-tab="heroes">🦸 Герои</button>
-            <button class="tab-btn" data-tab="items">🛡️ Предметы</button>
-            <button class="tab-btn" data-tab="draft">📋 Драфт-центр</button>
-            <button class="tab-btn" data-tab="winrates">📊 Винрейты</button>
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">DOTAASIS</span>
+                <span class="patch">7.41a</span>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="home">
+                    <span class="icon">🏠</span> Главная
+                </button>
+                <button class="tab-btn" data-tab="heroes">
+                    <span class="icon">🦸</span> Герои
+                </button>
+                <button class="tab-btn" data-tab="items">
+                    <span class="icon">🛡️</span> Предметы
+                </button>
+                <button class="tab-btn" data-tab="draft">
+                    <span class="icon">📋</span> Драфт-центр
+                </button>
+                <button class="tab-btn" data-tab="winrates">
+                    <span class="icon">📊</span> Винрейты
+                </button>
+            </div>
+
+            <div class="nav-right">
+                <button onclick="toggleTheme()" class="theme-toggle">🌙</button>
+            </div>
         </div>
     </nav>
 
-    <main class="container">
-        <!-- HOME -->
+    <main class="main-container">
+
+        <!-- HOME TAB -->
         <section id="home" class="tab-content active">
             <div class="hero-banner">
-                <h1>DOTAASIS ULTIMATE ANALYTICS</h1>
-                <p>Полный анализ драфта • Контрпики • Предметы • Live-мета • Скриншот-драфт</p>
-                <button onclick="document.querySelector('[data-tab=\'draft\']').click()" class="big-neon-btn">
-                    Перейти в Драфт-центр →
-                </button>
+                <div class="banner-content">
+                    <h1 class="main-title">DOTAASIS ULTIMATE ANALYTICS</h1>
+                    <p class="subtitle">Полный анализ драфта • Контрпики • Предметы • Live-мета • Скриншот-драфт</p>
+                    <div class="banner-buttons">
+                        <button onclick="switchToTab('draft')" class="big-neon-btn">
+                            🚀 Перейти в Драфт-центр
+                        </button>
+                    </div>
+                    <div class="version">Patch 7.41a • OpenDota + Steam API</div>
+                </div>
             </div>
         </section>
 
-        <!-- ГЕРОИ -->
+        <!-- ГЕРОИ TAB -->
         <section id="heroes" class="tab-content">
-            <h2 class="section-title">Все герои Dota 2 (7.41a)</h2>
-            <input type="text" id="hero-search" placeholder="Поиск героя..." class="search-input">
-            <div id="heroes-grid" class="grid"></div>
+            <div class="section-header">
+                <h2>Все герои Dota 2 <span class="count">(124)</span></h2>
+                <input type="text" id="hero-search" placeholder="🔎 Поиск героя (например: Абаддон, Пудж...)" class="search-input">
+            </div>
+            <div id="heroes-grid" class="heroes-grid"></div>
         </section>
 
-        <!-- ПРЕДМЕТЫ -->
+        <!-- ПРЕДМЕТЫ TAB -->
         <section id="items" class="tab-content">
-            <h2 class="section-title">Все предметы Dota 2</h2>
-            <input type="text" id="item-search" placeholder="Поиск предмета..." class="search-input">
-            <div id="items-grid" class="grid"></div>
+            <div class="section-header">
+                <h2>Все предметы Dota 2 <span class="count">(78)</span></h2>
+                <input type="text" id="item-search" placeholder="🔎 Поиск предмета" class="search-input">
+            </div>
+            <div id="items-grid" class="items-grid"></div>
         </section>
 
-        <!-- ДРАФТ-ЦЕНТР -->
+        <!-- ДРАФТ-ЦЕНТР TAB -->
         <section id="draft" class="tab-content">
-            <h2 class="section-title">Драфт-центр</h2>
-            
-            <!-- Загрузка скриншота -->
-            <div class="screenshot-box glass">
-                <h3>📸 Загрузи скриншот драфта</h3>
+            <h2 class="section-title">📋 Драфт-центр</h2>
+
+            <!-- Скриншот -->
+            <div class="screenshot-panel glass">
+                <h3>📸 Загрузи скриншот драфта (авто-анализ)</h3>
                 <input type="file" id="screenshot-upload" accept="image/*">
-                <div id="preview" class="preview"></div>
-                <button id="analyze-screenshot" class="neon-btn">Анализировать скриншот (автоопределение)</button>
-                <p class="note">В текущей версии — заглушка (полный ИИ-распознавание можно добавить через Grok Vision API позже)</p>
+                <div id="screenshot-preview" class="preview-area"></div>
+                <button id="analyze-screenshot-btn" class="neon-btn">Анализировать скриншот</button>
             </div>
 
-            <div class="draft-area">
-                <div class="enemy-team">
-                    <h3>Вражеская команда (выбери до 5)</h3>
-                    <div id="selected-enemy" class="selected-heroes"></div>
+            <div class="draft-main">
+                <div class="enemy-column">
+                    <h3>Вражеская команда (5 героев)</h3>
+                    <div id="selected-enemy" class="selected-list"></div>
                 </div>
 
-                <div class="hero-pool">
-                    <h3>Поиск и выбор героев</h3>
-                    <input type="text" id="draft-search" placeholder="Найти героя..." class="search-input">
-                    <div id="draft-heroes-grid" class="grid small"></div>
+                <div class="pool-column">
+                    <h3>Выбери героев врага</h3>
+                    <input type="text" id="draft-search" placeholder="Поиск героя для добавления" class="search-input">
+                    <div id="draft-pool-grid" class="heroes-grid small-grid"></div>
                 </div>
-
-                <button id="analyze-draft-btn" class="big-neon-btn">АНАЛИЗИРОВАТЬ ДРАФТ</button>
             </div>
 
-            <!-- Результаты анализа -->
+            <button id="analyze-draft-btn" class="big-neon-btn full-width">🔥 АНАЛИЗИРОВАТЬ ДРАФТ</button>
+
             <div id="draft-result" class="result-panel glass hidden"></div>
         </section>
 
-        <!-- ВИНРЕЙТЫ -->
+        <!-- ВИНРЕЙТЫ TAB -->
         <section id="winrates" class="tab-content">
-            <h2 class="section-title">Live-винрейты (OpenDota)</h2>
-            <button onclick="loadWinrates()" class="neon-btn">Обновить данные</button>
-            <table id="winrate-table" class="winrate-table">
+            <div class="section-header">
+                <h2>Live Винрейты (OpenDota API)</h2>
+                <button onclick="loadLiveWinrates()" class="neon-btn">Обновить данные</button>
+            </div>
+            <table id="winrate-table" class="data-table">
                 <thead>
-                    <tr><th>Герой</th><th>Winrate</th><th>Pickrate</th><th>Про-винрейт</th></tr>
+                    <tr>
+                        <th>Герой</th>
+                        <th>Winrate (Pub)</th>
+                        <th>Pickrate</th>
+                        <th>Pro Winrate</th>
+                    </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </section>
+
     </main>
 
-    <!-- МОДАЛЬНОЕ ОКНО -->
-    <div id="modal" class="modal hidden">
-        <div class="modal-content glass">
-            <span class="close" onclick="closeModal()">×</span>
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content glass" id="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
             <div id="modal-body"></div>
         </div>
     </div>
 
     <script>
-        // Инициализация после загрузки app.js
+        // =============================================
+        // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+        // =============================================
+        let selectedEnemyHeroes = [];
+
+        // =============================================
+        // ЗАГРУЗКА ПОСЛЕ app.js
+        // =============================================
         window.addEventListener('load', () => {
-            if (!window.DOTAASIS) {
-                console.error('app.js не найден!');
+            if (typeof window.DOTAASIS === 'undefined') {
+                console.error('❌ app.js не загрузился! Проверь путь к файлу.');
                 return;
             }
+
+            console.log('%c✅ DOTAASIS загружен успешно! Героев: ' + Object.keys(window.DOTAASIS.heroes).length, 'color:#22ff88; font-size:16px');
+
+            // Рендер всех вкладок
+            renderHeroesGrid();
+            renderItemsGrid();
+            renderDraftPool();
+
+            // Поиск
+            document.getElementById('hero-search').addEventListener('input', renderHeroesGrid);
+            document.getElementById('item-search').addEventListener('input', renderItemsGrid);
+            document.getElementById('draft-search').addEventListener('input', renderDraftPool);
+
+            // Кнопки анализа
+            document.getElementById('analyze-draft-btn').addEventListener('click', runDraftAnalysis);
+            document.getElementById('analyze-screenshot-btn').addEventListener('click', analyzeScreenshot);
+
+            // Скриншот превью
+            document.getElementById('screenshot-upload').addEventListener('change', handleScreenshotUpload);
 
             // Переключение вкладок
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                     document.getElementById(btn.dataset.tab).classList.add('active');
                 });
             });
 
-            renderHeroes();
-            renderItems();
-            renderDraftPool();
-
-            // Поиск
-            document.getElementById('hero-search').addEventListener('input', renderHeroes);
-            document.getElementById('item-search').addEventListener('input', renderItems);
-            document.getElementById('draft-search').addEventListener('input', renderDraftPool);
-
-            // Анализ драфта
-            document.getElementById('analyze-draft-btn').addEventListener('click', analyzeDraft);
-
-            // Скриншот (заглушка)
-            document.getElementById('analyze-screenshot').addEventListener('click', () => {
-                alert('🔥 В полной версии здесь будет ИИ-распознавание героев с картинки (Grok Vision). Пока выбери вручную в Драфт-центре.');
-            });
-
-            // Превью скриншота
-            document.getElementById('screenshot-upload').addEventListener('change', e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    document.getElementById('preview').innerHTML = `<img src="${ev.target.result}" alt="preview">`;
-                };
-                reader.readAsDataURL(file);
-            });
-
-            console.log('%c✅ DOTAASIS сайт успешно инициализирован!', 'color:#22ff88;font-size:16px');
+            console.log('%c🎉 Сайт полностью готов к работе!', 'color:#00ccff; font-size:18px');
         });
 
-        // Рендер героев
-        function renderHeroes() {
+        // =============================================
+        // РЕНДЕР ГЕРОЕВ (главная вкладка)
+        // =============================================
+        function renderHeroesGrid() {
             const grid = document.getElementById('heroes-grid');
-            const search = document.getElementById('hero-search').value.toLowerCase();
+            const query = document.getElementById('hero-search').value.toLowerCase().trim();
             grid.innerHTML = '';
 
             Object.keys(window.DOTAASIS.heroes).forEach(key => {
                 const hero = window.DOTAASIS.heroes[key];
-                if (search && !hero.localName.toLowerCase().includes(search) && !key.includes(search)) return;
+                if (query && !hero.localName.toLowerCase().includes(query) && !key.includes(query)) return;
 
-                const div = document.createElement('div');
-                div.className = 'hero-card glass';
-                div.innerHTML = `
-                    <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt="${hero.localName}">
-                    <div class="attr ${hero.primaryAttr}">${hero.primaryAttr === 'strength' ? 'СИЛА' : hero.primaryAttr === 'agility' ? 'ЛОВКОСТЬ' : 'ИНТЕЛЛЕКТ'}</div>
-                    <h4>${hero.localName}</h4>
+                const card = document.createElement('div');
+                card.className = 'hero-card glass';
+                card.innerHTML = `
+                    <div class="hero-image-wrapper">
+                        <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt="${hero.localName}" onerror="this.src='https://via.placeholder.com/280x160/1a0033/22ff88?text=${hero.localName}'">
+                        <div class="attr-badge ${hero.primaryAttr}">${getAttrText(hero.primaryAttr)}</div>
+                    </div>
+                    <div class="hero-name">${hero.localName}</div>
                 `;
-                div.onclick = () => showHeroModal(key);
-                grid.appendChild(div);
+                card.addEventListener('click', () => showHeroModal(key));
+                grid.appendChild(card);
             });
+
+            if (grid.children.length === 0) {
+                grid.innerHTML = `<p class="empty">Герой не найден 😢</p>`;
+            }
         }
 
-        // Рендер предметов
-        function renderItems() {
+        function getAttrText(attr) {
+            if (attr === 'strength') return 'СИЛА';
+            if (attr === 'agility') return 'ЛОВКОСТЬ';
+            return 'ИНТЕЛЛЕКТ';
+        }
+
+        // =============================================
+        // РЕНДЕР ПРЕДМЕТОВ
+        // =============================================
+        function renderItemsGrid() {
             const grid = document.getElementById('items-grid');
-            const search = document.getElementById('item-search').value.toLowerCase();
+            const query = document.getElementById('item-search').value.toLowerCase().trim();
             grid.innerHTML = '';
 
             Object.keys(window.DOTAASIS.items).forEach(key => {
                 const item = window.DOTAASIS.items[key];
-                if (search && !key.includes(search)) return;
+                if (query && !key.toLowerCase().includes(query)) return;
 
-                const div = document.createElement('div');
-                div.className = 'item-card glass';
-                div.innerHTML = `
-                    <img src="https://cdn.dota2.com/apps/dota2/images/items/${key}.png" alt="${key}">
-                    <h4>${key.replace(/_/g, ' ').toUpperCase()}</h4>
-                    <small>${item.cost} 🪙</small>
+                const card = document.createElement('div');
+                card.className = 'item-card glass';
+                card.innerHTML = `
+                    <img src="https://cdn.dota2.com/apps/dota2/images/items/${key}.png" alt="${key}" onerror="this.src='https://via.placeholder.com/120x120/1a0033/00ccff?text=${key}'">
+                    <div class="item-name">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                    <div class="item-cost">${item.cost} 🪙</div>
                 `;
-                div.onclick = () => showItemModal(key);
-                grid.appendChild(div);
+                card.addEventListener('click', () => showItemModal(key));
+                grid.appendChild(card);
             });
         }
 
-        // Рендер пула для драфта
-        let selectedEnemy = [];
+        // =============================================
+        // ДРАФТ-ЦЕНТР
+        // =============================================
         function renderDraftPool() {
-            const grid = document.getElementById('draft-heroes-grid');
-            const search = document.getElementById('draft-search').value.toLowerCase();
+            const grid = document.getElementById('draft-pool-grid');
+            const query = document.getElementById('draft-search').value.toLowerCase().trim();
             grid.innerHTML = '';
 
             Object.keys(window.DOTAASIS.heroes).forEach(key => {
+                if (selectedEnemyHeroes.includes(key)) return;
                 const hero = window.DOTAASIS.heroes[key];
-                if (search && !hero.localName.toLowerCase().includes(search)) return;
+                if (query && !hero.localName.toLowerCase().includes(query)) return;
 
-                const div = document.createElement('div');
-                div.className = `hero-card small glass ${selectedEnemy.includes(key) ? 'selected' : ''}`;
-                div.innerHTML = `<img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt=""> <span>${hero.localName}</span>`;
-                div.onclick = () => {
-                    if (selectedEnemy.includes(key)) return;
-                    if (selectedEnemy.length >= 5) return alert('Максимум 5 героев!');
-                    selectedEnemy.push(key);
-                    updateSelectedEnemy();
-                };
-                grid.appendChild(div);
+                const card = document.createElement('div');
+                card.className = 'hero-card small glass';
+                card.innerHTML = `
+                    <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt="">
+                    <span>${hero.localName}</span>
+                `;
+                card.addEventListener('click', () => addToEnemyTeam(key));
+                grid.appendChild(card);
             });
         }
 
-        function updateSelectedEnemy() {
+        function addToEnemyTeam(key) {
+            if (selectedEnemyHeroes.length >= 5) {
+                alert('Максимум 5 героев в команде!');
+                return;
+            }
+            if (!selectedEnemyHeroes.includes(key)) {
+                selectedEnemyHeroes.push(key);
+                updateSelectedEnemyUI();
+                renderDraftPool();
+            }
+        }
+
+        function updateSelectedEnemyUI() {
             const container = document.getElementById('selected-enemy');
-            container.innerHTML = selectedEnemy.map(key => {
+            container.innerHTML = selectedEnemyHeroes.map(key => {
                 const hero = window.DOTAASIS.heroes[key];
-                return `<div class="selected-hero-tag">
-                    <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt="">
-                    ${hero.localName}
-                    <span onclick="removeEnemy('${key}');event.stopImmediatePropagation()">×</span>
-                </div>`;
+                return `
+                    <div class="selected-hero">
+                        <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" alt="">
+                        <span>${hero.localName}</span>
+                        <span class="remove" onclick="removeFromEnemy('${key}')">×</span>
+                    </div>`;
             }).join('');
         }
 
-        window.removeEnemy = function(key) {
-            selectedEnemy = selectedEnemy.filter(k => k !== key);
-            updateSelectedEnemy();
+        window.removeFromEnemy = function(key) {
+            selectedEnemyHeroes = selectedEnemyHeroes.filter(k => k !== key);
+            updateSelectedEnemyUI();
             renderDraftPool();
         };
 
-        // Анализ драфта
-        function analyzeDraft() {
-            if (selectedEnemy.length === 0) return alert('Выбери хотя бы 1 героя врага!');
+        function runDraftAnalysis() {
+            if (selectedEnemyHeroes.length === 0) {
+                alert('Выбери хотя бы одного героя врага!');
+                return;
+            }
+            const result = window.DOTAASIS.analyzeDraft(selectedEnemyHeroes);
+            showDraftResult(result);
+        }
 
-            const result = window.DOTAASIS.analyzeDraft(selectedEnemy);
+        function showDraftResult(result) {
             const panel = document.getElementById('draft-result');
             panel.classList.remove('hidden');
+            let html = `<h3>📊 Результат анализа драфта</h3>`;
+            html += `<p class="threat">Общая угроза: <strong>${result.overallEnemyThreat}/100</strong></p>`;
 
-            let html = `<h3>🔥 Анализ драфта</h3>`;
-            html += `<p><strong>Угроза:</strong> ${result.overallEnemyThreat}/100</p>`;
-            html += `<h4>Рекомендуемые контр-пики:</h4><ul>`;
-
-            result.topRecommendations.forEach(rec => {
-                html += `<li><strong>${rec.localName}</strong> — ${rec.score} баллов<br><small>${rec.reasoning}</small></li>`;
+            html += `<h4>🔥 Лучшие контр-пики:</h4><div class="rec-list">`;
+            result.topRecommendations.forEach(r => {
+                html += `<div class="rec-item"><strong>${r.localName}</strong> — ${r.score} баллов<br><small>${r.reasoning}</small></div>`;
             });
+            html += `</div>`;
 
-            html += `</ul><h4>🔑 Ситуативные предметы:</h4>`;
+            html += `<h4>🛡️ Рекомендуемые предметы:</h4>`;
             result.itemRecommendations.forEach(rec => {
-                html += `<p><strong>${rec.priority}:</strong> ${rec.items.map(i => i.name).join(', ')}</p>`;
+                html += `<p><strong>${rec.priority}:</strong> ${rec.items.map(i => i.name).join(' • ')}</p>`;
             });
 
-            html += `<h4>🧙 Оракул говорит:</h4>`;
-            result.oracleComment.forEach(text => html += `<p>${text}</p>`);
+            html += `<h4>🧙 Оракул говорит:</h4><div class="oracle-text">`;
+            result.oracleComment.forEach(line => html += `<p>${line}</p>`);
+            html += `</div>`;
 
             panel.innerHTML = html;
+        }
+
+        // Скриншот
+        function handleScreenshotUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                document.getElementById('screenshot-preview').innerHTML = `<img src="${ev.target.result}" alt="Скриншот">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function analyzeScreenshot() {
+            alert('🔥 В полной версии здесь будет ИИ-распознавание героев с картинки (Grok Vision). Пока используй ручной выбор в Драфт-центре.');
         }
 
         // Модальные окна
         function showHeroModal(key) {
             const hero = window.DOTAASIS.heroes[key];
-            const counters = window.DOTAASIS.getHeroCounters(key);
+            const countersData = window.DOTAASIS.getHeroCounters(key);
             let html = `
-                <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" style="width:100%;border-radius:12px;">
-                <h2>${hero.localName} <span class="attr ${hero.primaryAttr}">${hero.primaryAttr.toUpperCase()}</span></h2>
+                <img src="https://cdn.dota2.com/apps/dota2/images/heroes/${key}_full.png" class="modal-hero-img">
+                <h2>${hero.localName} <span class="attr ${hero.primaryAttr}">${getAttrText(hero.primaryAttr)}</span></h2>
                 <p><strong>Роли:</strong> ${hero.roles.join(', ')}</p>
-                <h3>Контрпики:</h3>
-                <ul>${counters.counters.map(c => `<li><strong>${c.localName}</strong> — +${c.advantage} (${c.reason})</li>`).join('')}</ul>
+                <h3>Контр-пики:</h3>
+                <ul class="counters-list">
+                    ${countersData.counters.map(c => `<li><strong>${c.localName}</strong> — +${c.advantage} (${c.reason})</li>`).join('')}
+                </ul>
             `;
             document.getElementById('modal-body').innerHTML = html;
-            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').style.display = 'flex';
         }
 
         function showItemModal(key) {
             const item = window.DOTAASIS.items[key];
             let html = `
-                <img src="https://cdn.dota2.com/apps/dota2/images/items/${key}.png" style="width:120px;">
+                <img src="https://cdn.dota2.com/apps/dota2/images/items/${key}.png" class="modal-item-img">
                 <h2>${key.replace(/_/g, ' ').toUpperCase()}</h2>
-                <p>Цена: <strong>${item.cost}</strong> золота</p>
-                <p><strong>Ситуация:</strong> ${item.situation || 'Общий'}</p>
+                <p>Стоимость: <strong>${item.cost} золота</strong></p>
+                <p>${item.reason || 'Универсальный предмет'}</p>
             `;
             document.getElementById('modal-body').innerHTML = html;
-            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').style.display = 'flex';
         }
 
         window.closeModal = function() {
-            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').style.display = 'none';
         };
 
         // Live винрейты
-        async function loadWinrates() {
+        async function loadLiveWinrates() {
             const tbody = document.querySelector('#winrate-table tbody');
-            tbody.innerHTML = '<tr><td colspan="4">Загрузка из OpenDota...</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;">Загрузка данных из OpenDota...</td></tr>`;
             const meta = await window.DOTAASIS.getLiveMeta();
             tbody.innerHTML = '';
             meta.forEach(h => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${h.name}</td><td>${h.pub_winrate}%</td><td>${h.pickRate}</td><td>${h.winrate}%</td>`;
+                tr.innerHTML = `
+                    <td>${h.name}</td>
+                    <td>${h.pub_winrate}%</td>
+                    <td>${h.pickRate}</td>
+                    <td>${h.winrate}%</td>
+                `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function switchToTab(tab) {
+            document.querySelector(`[data-tab="${tab}"]`).click();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
         }
     </script>
 </body>
