@@ -1,57 +1,106 @@
 <!DOCTYPE html>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DOTAASIS ULTIMATE</title>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Scripts -->
-  <script src="app.js" defer></script>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOTAASIS PRO | Аналитика 7.41a</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;600;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
-<header class="glass header">
-  <div class="logo">DOTAASIS ULTIMATE</div>
-
-  <nav class="nav">
-    <button data-tab="heroes">ГЕРОИ</button>
-    <button data-tab="items">ПРЕДМЕТЫ</button>
-    <button data-tab="builds">СБОРКИ</button>
-    <button data-tab="draft">ДРАФТ</button>
-  </nav>
-</header>
-
-<main>
-  <section id="heroes" class="tab active">
-    <input type="text" id="search" placeholder="Поиск героя..." class="search glass">
-    <div id="heroesGrid" class="grid"></div>
-  </section>
-
-  <section id="items" class="tab">
-    <div id="itemsGrid" class="grid"></div>
-  </section>
-
-  <section id="builds" class="tab">
-    <div class="glass box">
-      <h2>Сборки появятся позже</h2>
+    <div class="background-effects">
+        <div class="blob radiant"></div>
+        <div class="blob dire"></div>
     </div>
-  </section>
 
-  <section id="draft" class="tab">
-    <div class="glass box">
-      <h2>Драфт помощник</h2>
-      <button onclick="analyzeDraft()">Анализировать</button>
-      <div id="draftResult"></div>
+    <header class="main-header glass">
+        <div class="logo">DOTA<span>ASIS</span> <small>v7.41a</small></div>
+        <nav class="nav-menu">
+            <button class="nav-item active" data-target="heroes-view">ГЕРОИ</button>
+            <button class="nav-item" data-target="items-view">АРСЕНАЛ</button>
+            <button class="nav-item pro-gradient" data-target="draft-view">ДРАФТ-ИНТЕЛЛЕКТ</button>
+        </nav>
+        <div class="api-status">
+            <span id="status-dot"></span> <span id="status-text">ПОДКЛЮЧЕНИЕ К OPENDOTA...</span>
+        </div>
+    </header>
+
+    <main class="content-wrapper">
+        <section id="heroes-view" class="active">
+            <div class="control-panel glass">
+                <div class="search-box">
+                    <input type="text" id="hero-find" placeholder="Введите имя героя...">
+                </div>
+                <div class="attr-tabs">
+                    <button class="attr-btn active" data-attr="all">ВСЕ</button>
+                    <button class="attr-btn" data-attr="str">СИЛА</button>
+                    <button class="attr-btn" data-attr="agi">ЛОВКОСТЬ</button>
+                    <button class="attr-btn" data-attr="int">ИНТЕЛЛЕКТ</button>
+                    <button class="attr-btn" data-attr="uni">УНИВЕРСАЛ</button>
+                </div>
+            </div>
+            <div class="hero-grid" id="main-grid"></div>
+        </section>
+
+        <section id="draft-view">
+            <div class="draft-container">
+                <div class="enemy-side glass">
+                    <h2 class="side-title dire-text">ВРАЖЕСКИЙ ПИК (DIRE)</h2>
+                    <div class="role-slots">
+                        <div class="role-card glass" onclick="pickForRole(1)">
+                            <div class="role-icon">1</div>
+                            <div class="role-label">CARRY</div>
+                            <div class="slot-preview" id="slot-1"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(2)">
+                            <div class="role-icon">2</div>
+                            <div class="role-label">MID</div>
+                            <div class="slot-preview" id="slot-2"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(3)">
+                            <div class="role-icon">3</div>
+                            <div class="role-label">OFFLANE</div>
+                            <div class="slot-preview" id="slot-3"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(4)">
+                            <div class="role-icon">4</div>
+                            <div class="role-label">SUPPORT</div>
+                            <div class="slot-preview" id="slot-4"></div>
+                        </div>
+                        <div class="role-card glass" onclick="pickForRole(5)">
+                            <div class="role-icon">5</div>
+                            <div class="role-label">HARD SUPP</div>
+                            <div class="slot-preview" id="slot-5"></div>
+                        </div>
+                    </div>
+                    <button class="analyze-trigger" onclick="runProAnalysis()">ЗАПУСТИТЬ AI АНАЛИЗ</button>
+                </div>
+
+                <div class="analysis-results" id="analysis-box">
+                    <div class="placeholder-text">Выберите героев противника для расчета контрпиков</div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="items-view">
+            <div class="item-grid" id="item-grid"></div>
+        </section>
+    </main>
+
+    <div id="pro-modal" class="modal-overlay">
+        <div class="modal-window glass">
+            <button class="close-modal">&times;</button>
+            <div id="modal-content"></div>
+        </div>
     </div>
-  </section>
-</main>
 
-<div id="modal" class="modal">
-  <div class="modal-content glass">
-    <span class="close" onclick="closeModal()">✖</span>
-    <div id="modalData"></div>
-  </div>
-</div>
+    <div id="selector-modal" class="modal-overlay">
+        <div class="modal-window glass selection-window">
+            <h3>ВЫБЕРИТЕ ГЕРОЯ ДЛЯ ПОЗИЦИИ</h3>
+            <div class="selection-grid" id="selection-grid"></div>
+        </div>
+    </div>
 
+    <script src="app.js"></script>
 </body>
 </html>
