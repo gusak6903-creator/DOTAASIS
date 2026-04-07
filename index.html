@@ -9,7 +9,7 @@
 <body>
     <header class="glass-header">
         <div class="logo">
-            <span class="text-blue">CORE</span> <span class="text-green">v7.41a</span>
+            <span class="text-blue">CORE</span> <span class="text-green">Актуальный Патч</span>
         </div>
         <nav class="tabs">
             <button class="tab-btn active" data-target="tab-heroes">Герои</button>
@@ -22,77 +22,61 @@
         
         <section id="tab-heroes" class="tab-content active">
             <div class="filters glass-panel">
-                <input type="text" placeholder="Поиск героя..." class="glass-input">
-                <select class="glass-select">
-                    <option>Все атрибуты</option>
-                    <option>Сила</option>
-                    <option>Ловкость</option>
-                    <option>Интеллект</option>
-                    <option>Универсал</option>
-                </select>
-                <select class="glass-select">
-                    <option>Все роли</option>
-                    <option>Pos 1 (Carry)</option>
-                    <option>Mid</option>
-                    <option>Offlane</option>
-                    <option>Support</option>
+                <input type="text" id="hero-search" placeholder="Поиск героя..." class="glass-input">
+                <select id="hero-attr-filter" class="glass-select">
+                    <option value="all">Все атрибуты</option>
+                    <option value="str">Сила</option>
+                    <option value="agi">Ловкость</option>
+                    <option value="int">Интеллект</option>
+                    <option value="all_stats">Универсал</option>
                 </select>
             </div>
 
-            <div class="hero-details glass-panel">
+            <div id="hero-details-view" class="hero-details glass-panel hidden">
+                <button id="back-to-heroes" class="glass-btn-small mb-15">← Назад к списку</button>
                 <div class="hero-header">
-                    <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/antimage.png" alt="Anti-Mage" class="hero-avatar-fixed">
+                    <img id="selected-hero-img" src="" alt="" class="hero-avatar-fixed">
                     <div>
-                        <h2 class="text-blue">Anti-Mage</h2>
-                        <p class="text-green">Контр-пики и анализ</p>
+                        <h2 id="selected-hero-name" class="text-blue">Имя</h2>
+                        <p class="text-green">Статистические контр-пики (по данным OpenDota)</p>
                     </div>
                 </div>
-                
                 <div id="counter-picks-container" class="counters-list">
-                    </div>
+                    <p>Загрузка аналитики матчапов...</p>
+                </div>
+            </div>
+
+            <div id="heroes-grid" class="grid-container">
+                <div class="loading-text">Загрузка базы героев из Steam/OpenDota...</div>
             </div>
         </section>
 
         <section id="tab-items" class="tab-content glass-panel">
-            <h2 class="text-blue">База предметов</h2>
-            <p>Здесь будет сетка предметов с API OpenDota...</p>
+            <div class="filters mb-15">
+                <input type="text" id="item-search" placeholder="Поиск предмета..." class="glass-input">
+            </div>
+            <div id="items-grid" class="grid-container-items">
+                <div class="loading-text">Загрузка базы предметов...</div>
+            </div>
         </section>
 
         <section id="tab-analytics" class="tab-content glass-panel">
             <h2 class="text-green">Анализ 5v5</h2>
             <div class="draft-analyzer">
+                <p>Выберите 5 героев противника, чтобы система подобрала идеальный контр-драфт на основе статистики.</p>
                 <div class="enemy-team">
-                    <h3>Команда противника (Enemy)</h3>
                     <div class="draft-slots enemy-slots">
-                        <div class="slot glass-input">Выбрать</div>
-                        <div class="slot glass-input">Выбрать</div>
-                        <div class="slot glass-input">Выбрать</div>
-                        <div class="slot glass-input">Выбрать</div>
-                        <div class="slot glass-input">Выбрать</div>
+                        <div class="slot glass-input">Слот 1</div>
+                        <div class="slot glass-input">Слот 2</div>
+                        <div class="slot glass-input">Слот 3</div>
+                        <div class="slot glass-input">Слот 4</div>
+                        <div class="slot glass-input">Слот 5</div>
                     </div>
                 </div>
-                <div class="recommendations">
-                    <button class="glass-btn pulse-anim">Сгенерировать идеальный пик</button>
-                    </div>
             </div>
         </section>
 
     </main>
-
-    <div class="ai-widget glass-panel">
-        <div class="ai-header">
-            <span class="text-blue">AI Оракул</span>
-            <button id="toggle-chat" class="glass-btn-small">_</button>
-        </div>
-        <div class="ai-chat-body" id="ai-chat-body">
-            <div class="msg ai-msg">Привет! Я ИИ-ассистент. Вижу патч 7.35d. Какой драфт будем разбирать?</div>
-        </div>
-        <div class="ai-input-area">
-            <input type="text" id="ai-input" class="glass-input" placeholder="Спроси про контр-пик...">
-            <button class="glass-btn-small text-green">➤</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
