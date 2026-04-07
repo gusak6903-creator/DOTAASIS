@@ -3,268 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOTAASIS PRO ANALYTICS | Liquid Glass Edition</title>
+    <title>DOTAASIS Ultimate Analytics</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="ambient-bg ambient-1"></div>
+    <div class="ambient-bg ambient-2"></div>
+    <div class="ambient-bg ambient-3"></div>
 
-    <div class="glass-bg-visual">
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-    </div>
-
-    <div class="app-container">
-        <aside class="sidebar liquid-glass">
+    <div id="app-container">
+        <aside class="sidebar glass-panel">
             <div class="brand">
-                <div class="logo-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="logo-text">
-                    <h1>DOTAASIS</h1>
-                    <span>SYSTEM CORE 7.41a</span>
-                </div>
+                <div class="brand-logo">DA</div>
+                <h1 class="brand-name">DOTAASIS</h1>
+                <span class="brand-version">v7.41a</span>
             </div>
-
-            <nav class="main-nav">
-                <button class="nav-item active" data-tab="analytics">
-                    <i class="fa-solid fa-chart-line"></i> <span>Анализ Драфта</span>
+            <nav class="nav-menu">
+                <button class="nav-btn active glass-btn" data-target="tab-analytics">
+                    <span class="nav-icon">⚔️</span> Draft Analytics
                 </button>
-                <button class="nav-item" data-tab="heroes">
-                    <i class="fa-solid fa-users-viewfinder"></i> <span>База Героев</span>
+                <button class="nav-btn glass-btn" data-target="tab-heroes">
+                    <span class="nav-icon">🛡️</span> Hero Roster
                 </button>
-                <button class="nav-item" data-tab="items">
-                    <i class="fa-solid fa-shield-halved"></i> <span>Предметы</span>
-                </button>
-                <button class="nav-item" data-tab="settings">
-                    <i class="fa-solid fa-gear"></i> <span>Настройки</span>
+                <button class="nav-btn glass-btn" data-target="tab-items">
+                    <span class="nav-icon">🎒</span> Item Database
                 </button>
             </nav>
-
-            <div class="oracle-status liquid-glass">
-                <div class="status-head">Статус Оракула:</div>
-                <div class="status-body" id="oracle-quote">Готов к предсказаниям...</div>
+            <div class="sidebar-footer">
+                <div class="engine-status" id="engine-status">
+                    <span class="status-dot warning"></span> Engine Loading...
+                </div>
             </div>
         </aside>
 
         <main class="main-content">
-            
-            <section id="analytics" class="tab-pane active">
-                <div class="hero-selection-panel liquid-glass">
-                    <div class="panel-header">
-                        <h2>Анализ вражеского пика</h2>
-                        <p>Укажите героев противника для получения контрпиков и стратегии</p>
-                    </div>
-                    
-                    <div class="selectors-grid">
-                        <div class="select-wrapper">
-                            <label>Slot 1</label>
-                            <select class="hero-input" id="enemy-1"></select>
-                        </div>
-                        <div class="select-wrapper">
-                            <label>Slot 2</label>
-                            <select class="hero-input" id="enemy-2"></select>
-                        </div>
-                        <div class="select-wrapper">
-                            <label>Slot 3</label>
-                            <select class="hero-input" id="enemy-3"></select>
-                        </div>
-                        <div class="select-wrapper">
-                            <label>Slot 4</label>
-                            <select class="hero-input" id="enemy-4"></select>
-                        </div>
-                        <div class="select-wrapper">
-                            <label>Slot 5</label>
-                            <select class="hero-input" id="enemy-5"></select>
+            <header class="top-header glass-panel">
+                <h2>Ultimate Dota 2 Drafting Intelligence</h2>
+                <div class="header-actions">
+                    <button class="action-btn glass-btn" id="btn-reset">Reset Analysis</button>
+                </div>
+            </header>
+
+            <div class="tab-content-container">
+                <section id="tab-analytics" class="tab-section active">
+                    <div class="draft-setup glass-panel">
+                        <h3>Enemy Draft Configuration</h3>
+                        <p class="subtitle">Select up to 5 enemy heroes to generate high-precision counters and itemization paths.</p>
+                        
+                        <div class="enemy-selectors" id="enemy-selectors">
+                            </div>
+                        
+                        <div class="action-row">
+                            <button id="btn-analyze" class="primary-btn glass-btn" disabled>Initialize Analysis</button>
                         </div>
                     </div>
 
-                    <button id="run-analysis" class="action-btn">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Сгенерировать ответ
-                    </button>
-                </div>
-
-                <div id="analysis-results" class="results-layout" style="display: none;">
-                    <div class="verdict-card liquid-glass">
-                        <div class="verdict-header">
-                            <i class="fa-solid fa-eye"></i> Взор Оракула
+                    <div id="analysis-results" class="analysis-results hidden">
+                        <div class="result-grid-top">
+                            <div class="threat-panel glass-panel">
+                                <h3>Threat Matrix</h3>
+                                <div id="threat-metrics" class="metrics-grid"></div>
+                            </div>
+                            <div class="oracle-panel glass-panel glow-accent">
+                                <h3>Oracle's Insight</h3>
+                                <div id="oracle-comments" class="oracle-text"></div>
+                            </div>
                         </div>
-                        <div id="oracle-verdict-text" class="verdict-content"></div>
-                        <div class="threat-indicator">
-                            <span>Уровень опасности драфта:</span>
-                            <div class="progress-bar"><div id="threat-fill" class="fill"></div></div>
-                            <span id="threat-value">0%</span>
+
+                        <div class="result-grid-main">
+                            <div class="recommendations-panel glass-panel">
+                                <h3>Synergy Recommendations</h3>
+                                <div id="hero-recommendations" class="hero-list"></div>
+                            </div>
+                            <div class="counters-panel glass-panel">
+                                <h3>Hard Counters</h3>
+                                <div id="hero-counters" class="hero-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="result-grid-bottom">
+                            <div class="items-panel glass-panel">
+                                <h3>Situational Itemization</h3>
+                                <div id="item-recommendations" class="item-grid"></div>
+                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <div class="recommendation-columns">
-                        <div class="column liquid-glass">
-                            <h3><i class="fa-solid fa-trophy"></i> Рекомендуемые герои</h3>
-                            <div id="hero-rec-list" class="cards-stack"></div>
-                        </div>
-                        <div class="column liquid-glass">
-                            <h3><i class="fa-solid fa-bag-shopping"></i> Сборка предметов</h3>
-                            <div id="item-rec-list" class="cards-stack"></div>
-                        </div>
+                <section id="tab-heroes" class="tab-section">
+                    <div class="roster-header glass-panel">
+                        <h3>Hero Roster Database</h3>
+                        <input type="text" id="hero-search" class="glass-input" placeholder="Search heroes by name or role...">
                     </div>
-                </div>
-            </section>
+                    <div id="hero-grid" class="hero-roster-grid"></div>
+                </section>
 
-            <section id="heroes" class="tab-pane">
-                <div class="content-header">
-                    <h2>Энциклопедия Героев</h2>
-                    <input type="text" id="search-heroes" placeholder="Поиск по имени..." class="liquid-glass">
-                </div>
-                <div id="full-heroes-grid" class="full-grid"></div>
-            </section>
-
-            <section id="items" class="tab-pane">
-                <div class="content-header">
-                    <h2>Магазин артефактов</h2>
-                </div>
-                <div id="full-items-grid" class="full-grid"></div>
-            </section>
-
+                <section id="tab-items" class="tab-section">
+                    <div class="roster-header glass-panel">
+                        <h3>Itemization Database</h3>
+                    </div>
+                    <div id="item-grid" class="item-roster-grid"></div>
+                </section>
+            </div>
         </main>
     </div>
 
-    <script src="app (2).js"></script>
-
+    <script src="app.js"></script>
+    
     <script>
-        // СЛОВАРЬ ПРАВИЛЬНЫХ ИМЕН (Адаптер)
-        const RU_NAMES = {
-            "antimage": "Антимаг", "axe": "Акс", "bane": "Бейн", "bloodseeker": "Бладсикер", 
-            "crystal_maiden": "Кристал Мейден", "drow_ranger": "Дроу Рейнджер", "earthshaker": "Шейкер",
-            "juggernaut": "Джаггернаут", "mirana": "Мирана", "nevermore": "Сфинк (Shadow Fiend)",
-            "morphling": "Морфлинг", "pantom_lancer": "Фантом Лансер", "puck": "Пак",
-            "pudge": "Пудж", "razor": "Рейзор", "sand_king": "Санд Кинг", "storm_spirit": "Шторм Спирит",
-            "svens": "Свен", "tiny": "Тини", "vengefulspirit": "Венга", "windrunner": "Винрейнджер",
-            "zuus": "Зевс", "kunkka": "Кункка", "lina": "Лина", "lich": "Лич", "lion": "Лион",
-            "shadow_shaman": "Шаман", "slardar": "Слардар", "tidehunter": "Тайдхантер",
-            "witch_doctor": "Вич Доктор", "riki": "Рики", "enigma": "Энигма", "tinker": "Тинкер",
-            "sniper": "Снайпер", "necrolyte": "Некрофос", "warlock": "Варлок", "beastmaster": "Бистмастер",
-            "queenofpain": "Квопа", "venomancer": "Веномансер", "faceless_void": "Войд",
-            "skeleton_king": "Леорик (WK)", "death_prophet": "Банша", "phantom_assassin": "Фантомка",
-            "pugna": "Пугна", "templar_assassin": "Темпларка", "viper": "Вайпер", "luna": "Луна",
-            "dragon_knight": "ДК", "dazzle": "Даззл", "rattletrap": "Клокверк", "leshrac": "Лешрак",
-            "furion": "Фурион", "life_stealer": "Гуля", "dark_seer": "Дарк Сир", "clinkz": "Клинкз",
-            "omniknight": "Омник", "enchantress": "Энча", "huskar": "Хускар", "night_stalker": "Баланар",
-            "broodmother": "Бруда", "bounty_hunter": "БХ", "weaver": "Вивер", "jakiro": "Джакиро",
-            "batrider": "Баттрайдер", "chen": "Чен", "spectre": "Спектра", "doom_bringer": "Дум",
-            "ancient_apparition": "Аппарат", "ursa": "Урса", "spirit_breaker": "Баратрум",
-            "gyrocopter": "Гиро", "alchemist": "Алхимик", "invoker": "Инвокер", "silencer": "Сало",
-            "obsidian_destroyer": "ОД", "lycan": "Ликан", "brewmaster": "Панда", "shadow_demon": "ШД",
-            "lone_druid": "Друид", "chaos_knight": "ЦК", "meepo": "Мипо", "treant": "Трент",
-            "ogre_magi": "Огр", "undying": "Андаинг", "rubick": "Рубик", "disruptor": "Дисраптор",
-            "nyx_assassin": "Никс", "nagasiren": "Нага", "keeper_of_the_light": "Котл",
-            "wisp": "Виспо", "visage": "Визаж", "slark": "Сларк", "medusa": "Медуза", "troll_warlord": "Тролль",
-            "centaur": "Кентавр", "magnataur": "Магнус", "shredder": "Тимбер", "bristleback": "Бристл",
-            "tusk": "Туск", "skywrath_mage": "Скаймаг", "abaddon": "Абаддон", "elder_titan": "Титан",
-            "legion_commander": "Легионка", "ember_spirit": "Эмбер", "earth_spirit": "Земляная панда",
-            "abyssal_underlord": "Андерлорд", "terrorblade": "Террорблейд", "phoenix": "Феникс",
-            "techies": "Течис", "oracle": "Оракул", "winter_wyvern": "Виверна", "arc_warden": "Арк",
-            "monkey_king": "МК", "pangolier": "Панго", "dark_willow": "Вилка", "void_spirit": "Войд Спирит",
-            "snapfire": "Бабка", "mars": "Марс", "hoodwink": "Белка", "dawnbreaker": "Валлора",
-            "marci": "Марси", "primal_beast": "Бист", "muerta": "Муэрта"
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
-            const engine = window.DOTAASIS;
-            if (!engine) return;
+            const Engine = window.DOTAASIS;
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.getElementById('engine-status');
 
-            // --- НАВИГАЦИЯ ---
-            const navItems = document.querySelectorAll('.nav-item');
-            const tabs = document.querySelectorAll('.tab-pane');
+            if (!Engine) {
+                statusDot.className = 'status-dot error';
+                statusText.innerHTML = '<span class="status-dot error"></span> Engine Failure (app.js missing)';
+                console.error("DOTAASIS Engine not found. Ensure app.js is loaded before this script.");
+                return;
+            }
 
-            navItems.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    navItems.forEach(n => n.classList.remove('active'));
-                    tabs.forEach(t => t.classList.remove('active'));
-                    btn.classList.add('active');
-                    const target = btn.getAttribute('data-tab');
-                    document.getElementById(target).classList.add('active');
+            // Engine successfully hooked
+            statusDot.className = 'status-dot success';
+            statusText.innerHTML = '<span class="status-dot success"></span> Core Engine Active';
 
-                    if(target === 'heroes') renderFullHeroes();
-                    if(target === 'items') renderFullItems();
-                });
-            });
+            // Constants & State
+            const MAX_ENEMIES = 5;
+            let currentEnemyDraft = [];
 
-            // --- ЗАПОЛНЕНИЕ СЕЛЕКТОРОВ ---
-            const selects = document.querySelectorAll('.hero-input');
-            const sortedHeroes = Object.keys(engine.heroes).sort((a,b) => (RU_NAMES[a] || a).localeCompare(RU_NAMES[b] || b));
+            // UI Elements
+            const selectorsContainer = document.getElementById('enemy-selectors');
+            const btnAnalyze = document.getElementById('btn-analyze');
+            const btnReset = document.getElementById('btn-reset');
+            const analysisResults = document.getElementById('analysis-results');
+
+            // --- 1. INITIALIZE DROPDOWNS ---
+            const heroEntries = Object.entries(Engine.heroes).sort((a, b) => a[1].localName.localeCompare(b[1].localName));
             
-            let optionsHtml = '<option value="">-- Выберите героя --</option>';
-            sortedHeroes.forEach(id => {
-                const name = RU_NAMES[id] || engine.heroes[id].localName;
-                optionsHtml += `<option value="${id}">${name}</option>`;
-            });
-            selects.forEach(s => s.innerHTML = optionsHtml);
-
-            // --- АНАЛИЗ ---
-            document.getElementById('run-analysis').addEventListener('click', () => {
-                const enemyTeam = Array.from(selects).map(s => s.value).filter(v => v);
-                if(enemyTeam.length === 0) return alert('Выберите хотя бы одного врага');
-
-                const results = engine.analyzeDraft(enemyTeam);
-                showResults(results);
-            });
-
-            function showResults(data) {
-                const container = document.getElementById('analysis-results');
-                container.style.display = 'block';
+            function createHeroSelector(index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'selector-wrapper';
                 
-                document.getElementById('oracle-verdict-text').innerHTML = data.oracleComment.map(c => `<p>• ${c}</p>`).join('');
-                document.getElementById('threat-value').innerText = data.overallEnemyThreat + '%';
-                document.getElementById('threat-fill').style.width = data.overallEnemyThreat + '%';
+                const label = document.createElement('label');
+                label.innerText = `Position ${index + 1}`;
+                
+                const select = document.createElement('select');
+                select.className = 'glass-input hero-select';
+                select.dataset.index = index;
+                
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = "";
+                defaultOpt.innerText = "Select Hero...";
+                select.appendChild(defaultOpt);
 
-                // Рекомендации героев
-                document.getElementById('hero-rec-list').innerHTML = data.topRecommendations.map(h => `
-                    <div class="mini-card">
-                        <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${h.id}.png">
-                        <div class="info">
-                            <strong>${RU_NAMES[h.id] || h.localName}</strong>
-                            <p>${h.reasoning}</p>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Рекомендации предметов
-                let itemsHtml = '';
-                data.itemRecommendations.forEach(group => {
-                    group.items.forEach(item => {
-                        itemsHtml += `
-                            <div class="mini-card item">
-                                <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${item.id}.png">
-                                <div class="info">
-                                    <strong>${item.name}</strong>
-                                    <p>${item.reason}</p>
-                                </div>
-                            </div>
-                        `;
-                    });
+                heroEntries.forEach(([key, data]) => {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerText = data.localName; // Using translated names from app.js
+                    select.appendChild(opt);
                 });
-                document.getElementById('item-rec-list').innerHTML = itemsHtml || '<p>Стандартный закуп</p>';
+
+                select.addEventListener('change', updateDraftState);
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(select);
+                return wrapper;
             }
 
-            function renderFullHeroes() {
-                const grid = document.getElementById('full-heroes-grid');
-                grid.innerHTML = Object.entries(engine.heroes).map(([id, data]) => `
-                    <div class="grid-card liquid-glass">
-                        <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${id}.png">
-                        <h4>${RU_NAMES[id] || data.localName}</h4>
-                        <div class="tags">${(data.roles || []).slice(0,2).map(r => `<span>${r}</span>`).join('')}</div>
-                    </div>
-                `).join('');
+            for (let i = 0; i < MAX_ENEMIES; i++) {
+                selectorsContainer.appendChild(createHeroSelector(i));
             }
 
-            function renderFullItems() {
-                const grid = document.getElementById('full-items-grid');
-                grid.innerHTML = Object.entries(engine.items).map(([id, data]) => `
-                    <div class="grid-card liquid-glass">
-                        <img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${id}.png" style="height:40px; width:auto;">
-                        <h4>${data.name}</h4>
-                    </div>
-                `).join('');
+            // --- 2. DRAFT STATE MANAGEMENT ---
+            function updateDraftState() {
+                const selects = document.querySelectorAll('.hero-select');
+                currentEnemyDraft = Array.from(selects)
+                    .map(s => s.value)
+                    .filter(val => val !== "");
+
+                btnAnalyze.disabled = currentEnemyDraft.length === 0;
             }
+
+            btnReset.addEventListener('click', () => {
+                document.querySelectorAll('.hero-select').forEach(s => s.value = "");
+                updateDraftState();
+                analysisResults.classList.add('hidden');
+            });
+
+            btnAnalyze.addEventListener('click', () => {
+                if (currentEnemyDraft.length === 0) return;
+                const results = Engine.analyzeDraft(currentEnemyDraft);
+                renderAnalysis(results);
+                analysisResults.classList.remove('hidden');
+                analysisResults.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // --- 3. RENDER ANALYSIS RESULTS ---
+            function renderAnalysis(data) {
+                // Threat Matrix
+                const threatContainer = document.getElementById('threat-metrics');
+                threatContainer.innerHTML = '';
+                Object.entries(data.threatLevel).forEach(([type, level]) => {
+                    const el = document.createElement('div');
+                    el.className = `threat-metric level-${level.toLowerCase()}`;
+                    el.innerHTML = `<strong>${type.toUpperCase()}</strong><span>${level}</span>`;
+                    threatContainer.appendChild(el);
+                });
+
+                // Oracle Comments
+                const oracleContainer = document.getElementById('oracle-comments');
+                oracleContainer.innerHTML = data.oracleComment.map(c => `<p>🜲 "${c}"</p>`).join('');
+
+                // Recommendations
+                renderHeroList(document.getElementById('hero-recommendations'), data.topRecommendations, true);
+
+                // Counters
+                renderHeroList(document.getElementById('hero-counters'), data.topCounters, false);
+
+                // Items
+                const itemContainer = document.getElementById('item-recommendations');
+                itemContainer.innerHTML = '';
+                if (data.itemRecommendations.length === 0) {
+                    itemContainer.innerHTML = '<p class="empty-state">Standard itemization applies.</p>';
+                } else {
+                    data.itemRecommendations.forEach(sit => {
+                        const sitDiv = document.createElement('div');
+                        sitDiv.className = 'item-situation glass-card';
+                        sitDiv.innerHTML = `<h4 class="priority-${sit.priority.toLowerCase()}">Trigger: ${sit.situation.replace(/_/g, ' ')}</h4>`;
+                        
+                        const iList = document.createElement('ul');
+                        sit.items.forEach(item => {
+                            iList.innerHTML += `<li><strong>${item.name}</strong> <span>(🪙 ${item.cost})</span><br><small>${item.reason || ''}</small></li>`;
+                        });
+                        sitDiv.appendChild(iList);
+                        itemContainer.appendChild(sitDiv);
+                    });
+                }
+            }
+
+            function getSteamHeroImageUrl(heroKey) {
+                // Steam CDN naming normalization mappings for tricky edge cases
+                const exceptions = {
+                    'anti_mage': 'antimage',
+                    'nature_prophet': 'furion',
+                    'doom': 'doom_bringer',
+                    'outworld_destroyer': 'obsidian_destroyer',
+                    'shadow_fiend': 'nevermore',
+                    'vengeful_spirit': 'vengefulspirit',
+                    'wraith_king': 'skeleton_king',
+                    'clockwerk': 'rattletrap',
+                    'lifestealer': 'life_stealer',
+                    'magnus': 'magnataur',
+                    'treant_protector': 'treant',
+                    'underlord': 'abyssal_underlord',
+                    'windranger': 'windrunner',
+                    'zeus': 'zuus'
+                };
+                const formattedKey = exceptions[heroKey] || heroKey;
+                return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${formattedKey}.png`;
+            }
+
+            function renderHeroList(container, heroes, isRec) {
+                container.innerHTML = '';
+                heroes.forEach(h => {
+                    const card = document.createElement('div');
+                    card.className = 'hero-card-small glass-card';
+                    
+                    const scoreText = isRec ? `<span class="score-badge rec">Score: ${h.score}</span>` : `<span class="score-badge ctr">Adv: +${h.totalAdvantage}%</span>`;
+                    const subText = isRec ? `<small>${h.reasoning}</small>` : '';
+
+                    card.innerHTML = `
+                        <img src="${getSteamHeroImageUrl(h.hero)}" alt="${h.localName}" onerror="this.src='https://via.placeholder.com/60x34/1a1a2e/ffffff?text=Hero'">
+                        <div class="hc-info">
+                            <h4>${h.localName}</h4>
+                            ${scoreText}
+                            ${subText}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            // --- 4. HERO ROSTER GRID ---
+            const heroGrid = document.getElementById('hero-grid');
+            function renderHeroGrid(filterText = "") {
+                heroGrid.innerHTML = '';
+                heroEntries.forEach(([key, data]) => {
+                    if (filterText && !data.localName.toLowerCase().includes(filterText) && !data.roles.some(r => r.includes(filterText))) return;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'roster-card glass-card';
+                    card.innerHTML = `
+                        <div class="roster-img" style="background-image: url('${getSteamHeroImageUrl(key)}')"></div>
+                        <div class="roster-meta">
+                            <h4>${data.localName}</h4>
+                            <p class="attr ${data.primaryAttr}">${data.primaryAttr.toUpperCase()}</p>
+                            <div class="roles-chips">
+                                ${data.roles.map(r => `<span class="chip">${r}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                    heroGrid.appendChild(card);
+                });
+            }
+            renderHeroGrid();
+
+            document.getElementById('hero-search').addEventListener('input', (e) => {
+                renderHeroGrid(e.target.value.toLowerCase());
+            });
+
+            // --- 5. ITEM ROSTER GRID ---
+            const itemGrid = document.getElementById('item-grid');
+            const itemsList = Engine.getFullItemList();
+            itemsList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'roster-card item-card glass-card';
+                card.innerHTML = `
+                    <div class="roster-meta">
+                        <h4>${item.name}</h4>
+                        <p class="cost">🪙 ${item.cost}</p>
+                        <p class="category">Type: ${item.category.replace(/_/g, ' ')}</p>
+                    </div>
+                `;
+                itemGrid.appendChild(card);
+            });
+
+            // --- 6. TAB NAVIGATION ---
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+                    
+                    const target = e.currentTarget;
+                    target.classList.add('active');
+                    document.getElementById(target.dataset.target).classList.add('active');
+                });
+            });
         });
     </script>
 </body>
