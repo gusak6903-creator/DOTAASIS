@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOTAASIS ULTIMATE — Аналитика Dota 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ФОНОВЫЕ ЭФФЕКТЫ -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-scanlines"></div>
+  </div>
+
+  <!-- ШАПКА -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo__icon">⬡</span>
+        <span class="logo__text">DOTAASIS<span class="logo__sub"> ULTIMATE</span></span>
+      </div>
+
+      <nav class="main-nav" id="main-nav" role="tablist">
+        <button class="nav-btn active" data-tab="heroes" role="tab" aria-selected="true">
+          <span class="nav-btn__icon">⚔</span>
+          <span>ГЕРОИ</span>
+        </button>
+        <button class="nav-btn" data-tab="items" role="tab" aria-selected="false">
+          <span class="nav-btn__icon">🛡</span>
+          <span>ПРЕДМЕТЫ</span>
+        </button>
+        <button class="nav-btn" data-tab="builds" role="tab" aria-selected="false">
+          <span class="nav-btn__icon">📋</span>
+          <span>СБОРКИ</span>
+        </button>
+        <button class="nav-btn" data-tab="draft" role="tab" aria-selected="false">
+          <span class="nav-btn__icon">🎯</span>
+          <span>ДРАФТ</span>
+        </button>
+      </nav>
+
+      <div class="header-status" id="header-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">Подключение...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main class="site-main" id="site-main">
+
+    <!-- ══════════════════════════════════════
+         РАЗДЕЛ: ГЕРОИ
+    ══════════════════════════════════════ -->
+    <section class="tab-section active" id="tab-heroes" role="tabpanel">
+      <div class="section-header">
+        <h2 class="section-title">БАЗА ГЕРОЕВ</h2>
+        <div class="section-controls">
+          <div class="search-box">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="hero-search" placeholder="Поиск героя..." autocomplete="off" spellcheck="false">
+          </div>
+          <div class="filter-group" id="attr-filters">
+            <button class="filter-chip active" data-attr="all">Все</button>
+            <button class="filter-chip" data-attr="str">
+              <span class="attr-dot attr-str"></span>Сила
+            </button>
+            <button class="filter-chip" data-attr="agi">
+              <span class="attr-dot attr-agi"></span>Ловкость
+            </button>
+            <button class="filter-chip" data-attr="int">
+              <span class="attr-dot attr-int"></span>Интеллект
+            </button>
+            <button class="filter-chip" data-attr="universal">
+              <span class="attr-dot attr-uni"></span>Универсал
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="heroes-meta" id="heroes-meta"></div>
+      <div class="hero-grid" id="hero-grid"></div>
+      <div class="empty-state" id="hero-empty" style="display:none">
+        <div class="empty-state__icon">🔍</div>
+        <p>Герои не найдены</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         РАЗДЕЛ: ПРЕДМЕТЫ
+    ══════════════════════════════════════ -->
+    <section class="tab-section" id="tab-items" role="tabpanel">
+      <div class="section-header">
+        <h2 class="section-title">БАЗА ПРЕДМЕТОВ</h2>
+        <div class="section-controls">
+          <div class="search-box">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="item-search" placeholder="Поиск предмета..." autocomplete="off" spellcheck="false">
+          </div>
+          <div class="filter-group" id="item-type-filters">
+            <button class="filter-chip active" data-itype="all">Все</button>
+            <button class="filter-chip" data-itype="regular">Обычные</button>
+            <button class="filter-chip" data-itype="neutral">Нейтральные</button>
+          </div>
+        </div>
+      </div>
+      <div class="items-meta" id="items-meta"></div>
+      <div class="item-grid" id="item-grid"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         РАЗДЕЛ: СБОРКИ
+    ══════════════════════════════════════ -->
+    <section class="tab-section" id="tab-builds" role="tabpanel">
+      <div class="section-header">
+        <h2 class="section-title">МЕТА СБОРКИ</h2>
+        <p class="section-desc">Выберите героя для просмотра актуальных предметов по текущей мете</p>
+      </div>
+
+      <div class="builds-layout">
+        <div class="builds-picker glass-card">
+          <div class="builds-picker__label">Выберите героя</div>
+          <div class="search-box" style="margin-bottom:1rem">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="build-search" placeholder="Поиск..." autocomplete="off">
+          </div>
+          <div class="builds-hero-list" id="builds-hero-list"></div>
+        </div>
+
+        <div class="builds-content" id="builds-content">
+          <div class="builds-placeholder glass-card">
+            <div class="placeholder-icon">📋</div>
+            <p>Выберите героя слева, чтобы увидеть сборку</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         РАЗДЕЛ: ДРАФТ
+    ══════════════════════════════════════ -->
+    <section class="tab-section" id="tab-draft" role="tabpanel">
+      <div class="section-header">
+        <h2 class="section-title">УМНЫЙ ДРАФТ</h2>
+        <p class="section-desc">Выберите до 5 героев вражеской команды — алгоритм подберёт идеальные контрпики</p>
+      </div>
+
+      <div class="draft-layout">
+        <!-- Выбор врагов -->
+        <div class="draft-enemy glass-card">
+          <div class="draft-card__title">
+            <span class="draft-card__icon">🔴</span> ГЕРОИ ВРАГА
+          </div>
+          <div class="draft-enemy-slots" id="draft-enemy-slots">
+            <!-- генерируется JS -->
+          </div>
+          <div class="search-box" style="margin:1rem 0 0.5rem">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="draft-search" placeholder="Добавить героя врага..." autocomplete="off">
+          </div>
+          <div class="draft-search-results" id="draft-search-results"></div>
+          <button class="btn-analyze" id="btn-analyze" disabled>
+            <span>⚡</span> АНАЛИЗИРОВАТЬ СОСТАВ
+          </button>
+        </div>
+
+        <!-- Анализ и рекомендации -->
+        <div class="draft-result" id="draft-result">
+          <div class="draft-placeholder glass-card">
+            <div class="placeholder-icon">🎯</div>
+            <p>Добавьте хотя бы одного врага и нажмите «Анализировать»</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════
+       МОДАЛЬНОЕ ОКНО ГЕРОЯ
+  ══════════════════════════════════════ -->
+  <div class="modal-overlay" id="hero-modal" aria-modal="true" role="dialog">
+    <div class="modal-glass" id="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Закрыть">✕</button>
+
+      <div class="modal-hero-header" id="modal-hero-header">
+        <img class="modal-hero-bg" id="modal-hero-bg" src="" alt="">
+        <div class="modal-hero-banner">
+          <img class="modal-hero-portrait" id="modal-hero-portrait" src="" alt="">
+          <div class="modal-hero-info">
+            <h2 class="modal-hero-name" id="modal-hero-name"></h2>
+            <div class="modal-hero-meta" id="modal-hero-meta"></div>
+            <div class="modal-hero-roles" id="modal-hero-roles"></div>
+          </div>
+          <div class="modal-hero-stats" id="modal-hero-stats"></div>
+        </div>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-mtab="counters">Контрпики</button>
+        <button class="modal-tab" data-mtab="items-vs">Предметы против</button>
+        <button class="modal-tab" data-mtab="synergy">Синергии</button>
+      </div>
+
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
