@@ -1,82 +1,173 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dota 2 Draft AI Analyzer</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOTAASIS ULTIMATE | Draft Analytics</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="glass-header">
-        <div class="logo">
-            <span class="text-blue">CORE</span> <span class="text-green">Актуальный Патч</span>
-        </div>
-        <nav class="tabs">
-            <button class="tab-btn active" data-target="tab-heroes">Герои</button>
-            <button class="tab-btn" data-target="tab-items">Предметы</button>
-            <button class="tab-btn" data-target="tab-analytics">Аналитика Драфта</button>
-        </nav>
-    </header>
 
-    <main class="content-container">
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <main class="dashboard">
+    
+    <aside class="sidebar liquid-glass">
+      <div class="logo">
+        <h1>DOTAASIS</h1>
+        <span>ULTIMATE ANALYTICS 7.41a</span>
+      </div>
+      <nav>
+        <button class="nav-btn active">Анализ Драфта</button>
+        <button class="nav-btn">Герои</button>
+        <button class="nav-btn">Предметы</button>
+      </nav>
+      <div class="oracle-quote liquid-glass" id="random-quote">
+        "Загрузка мудрости Оракула..."
+      </div>
+    </aside>
+
+    <section class="content">
+      
+      <header class="draft-setup liquid-glass">
+        <h2>Вражеский драфт</h2>
+        <p>Выберите от 1 до 5 героев врага для анализа</p>
         
-        <section id="tab-heroes" class="tab-content active">
-            <div class="filters glass-panel">
-                <input type="text" id="hero-search" placeholder="Поиск героя..." class="glass-input">
-                <select id="hero-attr-filter" class="glass-select">
-                    <option value="all">Все атрибуты</option>
-                    <option value="str">Сила</option>
-                    <option value="agi">Ловкость</option>
-                    <option value="int">Интеллект</option>
-                    <option value="all_stats">Универсал</option>
-                </select>
-            </div>
+        <div class="hero-selectors" id="hero-selectors">
+          <select class="hero-select" id="slot-1"><option value="">-- Слот 1 --</option></select>
+          <select class="hero-select" id="slot-2"><option value="">-- Слот 2 --</option></select>
+          <select class="hero-select" id="slot-3"><option value="">-- Слот 3 --</option></select>
+          <select class="hero-select" id="slot-4"><option value="">-- Слот 4 --</option></select>
+          <select class="hero-select" id="slot-5"><option value="">-- Слот 5 --</option></select>
+        </div>
+        
+        <button id="analyze-btn" class="glow-btn">Анализировать драфт</button>
+      </header>
 
-            <div id="hero-details-view" class="hero-details glass-panel hidden">
-                <button id="back-to-heroes" class="glass-btn-small mb-15">← Назад к списку</button>
-                <div class="hero-header">
-                    <img id="selected-hero-img" src="" alt="" class="hero-avatar-fixed">
-                    <div>
-                        <h2 id="selected-hero-name" class="text-blue">Имя</h2>
-                        <p class="text-green">Статистические контр-пики (по данным OpenDota)</p>
-                    </div>
+      <div class="results-container" id="results-container" style="display: none;">
+        
+        <div class="oracle-verdict liquid-glass">
+          <h3>Вердикт Оракула</h3>
+          <div id="oracle-comments"></div>
+          <div class="threat-meter">
+            <span>Уровень угрозы:</span>
+            <span id="threat-score" class="badge">0</span>
+          </div>
+        </div>
+
+        <div class="split-view">
+          <div class="recommendations liquid-glass">
+            <h3>Лучшие пики</h3>
+            <div class="card-grid" id="recommended-heroes">
+              </div>
+          </div>
+
+          <div class="items liquid-glass">
+            <h3>Ситуативные предметы</h3>
+            <div class="card-grid" id="recommended-items">
+              </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Проверка, загрузился ли твой скрипт
+      if (!window.DOTAASIS) {
+        alert('Ошибка: Файл app.js не найден или содержит ошибку.');
+        return;
+      }
+
+      const engine = window.DOTAASIS;
+      const selects = document.querySelectorAll('.hero-select');
+      const analyzeBtn = document.getElementById('analyze-btn');
+      const resultsContainer = document.getElementById('results-container');
+
+      // 1. Заполняем выпадающие списки героями
+      const heroesArray = Object.entries(engine.heroes).sort((a, b) => a[1].localName.localeCompare(b[1].localName));
+      
+      let optionsHtml = '<option value="">-- Выберите героя --</option>';
+      heroesArray.forEach(([key, data]) => {
+        optionsHtml += `<option value="${key}">${data.localName}</option>`;
+      });
+
+      selects.forEach(select => {
+        select.innerHTML = optionsHtml;
+      });
+
+      // Случайная цитата Оракула при загрузке
+      document.getElementById('random-quote').innerText = engine.getOraclePhrase('neutral');
+
+      // 2. Обработка нажатия на кнопку "Анализировать"
+      analyzeBtn.addEventListener('click', () => {
+        // Собираем выбранных героев (игнорируем пустые)
+        const enemyTeam = [];
+        selects.forEach(select => {
+          if (select.value) enemyTeam.push(select.value);
+        });
+
+        if (enemyTeam.length === 0) {
+          alert('Выберите хотя бы одного героя!');
+          return;
+        }
+
+        // Запускаем твой алгоритм из app.js!
+        const analysis = engine.analyzeDraft(enemyTeam);
+        renderResults(analysis);
+      });
+
+      // 3. Функция отрисовки результатов на экране
+      function renderResults(data) {
+        resultsContainer.style.display = 'flex';
+        
+        // Отрисовка Оракула
+        const oracleDiv = document.getElementById('oracle-comments');
+        oracleDiv.innerHTML = data.oracleComment.map(comment => `<p class="oracle-text">"${comment}"</p>`).join('');
+        
+        const threatScore = document.getElementById('threat-score');
+        threatScore.innerText = `${data.overallEnemyThreat} / 100`;
+        threatScore.style.backgroundColor = data.overallEnemyThreat > 70 ? 'var(--danger)' : (data.overallEnemyThreat > 40 ? 'var(--warning)' : 'var(--success)');
+
+        // Отрисовка Героев
+        const heroesGrid = document.getElementById('recommended-heroes');
+        heroesGrid.innerHTML = data.topRecommendations.map(hero => `
+          <div class="result-card hero-card">
+            <h4>${hero.localName}</h4>
+            <span class="score-badge">Скор: ${hero.score}</span>
+            <p class="reasoning">${hero.reasoning}</p>
+          </div>
+        `).join('');
+
+        // Отрисовка Предметов
+        const itemsGrid = document.getElementById('recommended-items');
+        if (data.itemRecommendations.length > 0) {
+          let itemsHtml = '';
+          data.itemRecommendations.forEach(sit => {
+            sit.items.forEach(item => {
+              itemsHtml += `
+                <div class="result-card item-card">
+                  <h4>${item.name}</h4>
+                  <span class="priority ${sit.priority.toLowerCase()}">${sit.priority}</span>
+                  <p class="reasoning">${item.reason}</p>
                 </div>
-                <div id="counter-picks-container" class="counters-list">
-                    <p>Загрузка аналитики матчапов...</p>
-                </div>
-            </div>
-
-            <div id="heroes-grid" class="grid-container">
-                <div class="loading-text">Загрузка базы героев из Steam/OpenDota...</div>
-            </div>
-        </section>
-
-        <section id="tab-items" class="tab-content glass-panel">
-            <div class="filters mb-15">
-                <input type="text" id="item-search" placeholder="Поиск предмета..." class="glass-input">
-            </div>
-            <div id="items-grid" class="grid-container-items">
-                <div class="loading-text">Загрузка базы предметов...</div>
-            </div>
-        </section>
-
-        <section id="tab-analytics" class="tab-content glass-panel">
-            <h2 class="text-green">Анализ 5v5</h2>
-            <div class="draft-analyzer">
-                <p>Выберите 5 героев противника, чтобы система подобрала идеальный контр-драфт на основе статистики.</p>
-                <div class="enemy-team">
-                    <div class="draft-slots enemy-slots">
-                        <div class="slot glass-input">Слот 1</div>
-                        <div class="slot glass-input">Слот 2</div>
-                        <div class="slot glass-input">Слот 3</div>
-                        <div class="slot glass-input">Слот 4</div>
-                        <div class="slot glass-input">Слот 5</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-    <script src="script.js"></script>
+              `;
+            });
+          });
+          itemsGrid.innerHTML = itemsHtml;
+        } else {
+          itemsGrid.innerHTML = '<p style="padding: 1rem; color: #aaa;">Специфичных предметов не требуется, собирайте стандартные билды.</p>';
+        }
+      }
+    });
+  </script>
 </body>
 </html>
