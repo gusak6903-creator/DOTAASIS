@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOTAASIS — Ultimate Analytics · Patch 7.41a</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- MAIN APP CONTAINER — window.DOTAASIS зацепляется здесь      -->
+<!-- ← здесь подключается твой JS (app.js)                       -->
+<!-- ============================================================ -->
+<div id="app">
+
+  <!-- ============================================================ -->
+  <!-- HEADER / LOGO                                                 -->
+  <!-- ============================================================ -->
+  <header id="site-header">
+    <div class="header-inner">
+      <div class="logo-block">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="none" stroke="url(#logoGrad)" stroke-width="2"/>
+            <polygon points="18,8 28,13 28,23 18,28 8,23 8,13" fill="url(#logoFill)" opacity="0.3"/>
+            <circle cx="18" cy="18" r="4" fill="#00ff9d"/>
+            <line x1="18" y1="8" x2="18" y2="14" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="18" y1="22" x2="18" y2="28" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="8" y1="13" x2="14" y2="16" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="22" y1="20" x2="28" y2="23" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="28" y1="13" x2="22" y2="16" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="14" y1="20" x2="8" y2="23" stroke="#00d4ff" stroke-width="1.5"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ff9d"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+              <linearGradient id="logoFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ff9d"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">DOTAASIS</span>
+          <span class="logo-sub">Ultimate Analytics · Patch 7.41a</span>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="patch-badge">
+          <span class="patch-dot"></span>
+          <span>7.41a LIVE</span>
+        </div>
+        <div class="oracle-ticker" id="oracle-ticker">
+          <span class="ticker-icon">⚡</span>
+          <span id="oracle-text">Загрузка данных...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- NAVIGATION — data-tab используется JS для переключения вкладок -->
+  <!-- ← JS зацепляется за id="main-tabs" и data-tab атрибуты      -->
+  <!-- ============================================================ -->
+  <nav id="main-tabs" role="tablist" aria-label="Навигация">
+    <div class="tabs-inner">
+
+      <button class="tab-btn active" data-tab="heroes" role="tab" aria-selected="true" aria-controls="heroes-tab">
+        <span class="tab-icon">
+          <!-- Иконка меча -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 15L13 5M13 5H9M13 5V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 14L4 16" stroke="#ff2d55" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="tab-label">Герои</span>
+        <span class="tab-count" id="heroes-count">—</span>
+      </button>
+
+      <button class="tab-btn" data-tab="items" role="tab" aria-selected="false" aria-controls="items-tab">
+        <span class="tab-icon">
+          <!-- Иконка предмета -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9 6v6M6 9h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="tab-label">Предметы</span>
+        <span class="tab-count" id="items-count">—</span>
+      </button>
+
+      <button class="tab-btn" data-tab="draft" role="tab" aria-selected="false" aria-controls="draft-tab">
+        <span class="tab-icon">
+          <!-- Иконка драфта -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="5" cy="9" r="2.5" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="13" cy="9" r="2.5" stroke="#ff2d55" stroke-width="1.8"/>
+            <path d="M7.5 9h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M5 3v2M5 13v2M13 3v2M13 13v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="tab-label">Драфт Центр</span>
+        <span class="tab-badge">AI</span>
+      </button>
+
+      <button class="tab-btn" data-tab="winrate" role="tab" aria-selected="false" aria-controls="winrate-tab">
+        <span class="tab-icon">
+          <!-- Иконка таблицы -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M2 7h14M2 12h14M7 7v8M12 7v8" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+        </span>
+        <span class="tab-label">Таблица Винрейта</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- CONTENT AREA — все вкладки живут здесь                      -->
+  <!-- ← JS ищет id="content-area" для управления видимостью       -->
+  <!-- ============================================================ -->
+  <main id="content-area">
+
+    <!-- ========================================================== -->
+    <!-- TAB: ГЕРОИ                                                  -->
+    <!-- id="heroes-tab" + class="tab-content" — стандарт для JS    -->
+    <!-- ========================================================== -->
+    <div id="heroes-tab" class="tab-content active" role="tabpanel" aria-labelledby="tab-heroes">
+
+      <!-- Панель фильтров -->
+      <div class="section-header">
+        <div class="section-title-block">
+          <h1 class="section-title">
+            <span class="title-glow">Герои</span>
+            <span class="section-patch">Dota 2 · 7.41a</span>
+          </h1>
+          <p class="section-desc">Полный ростер · Нажми на карточку для детальной информации и контрпиков</p>
+        </div>
+        <div class="filters-bar" id="heroes-filters">
+          <!-- Фильтры по атрибуту -->
+          <button class="filter-btn active" data-filter="all">Все</button>
+          <button class="filter-btn" data-filter="strength">
+            <!-- SVG Сила -->
+            <svg class="attr-icon" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M8 1 L11 5 L15 5 L12 8 L13 13 L8 10 L3 13 L4 8 L1 5 L5 5 Z" fill="#e84040"/>
+            </svg>
+            Сила
+          </button>
+          <button class="filter-btn" data-filter="agility">
+            <!-- SVG Ловкость -->
+            <svg class="attr-icon" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M8 1 C11 1 14 4 14 8 C14 12 11 15 8 15 C5 15 2 12 2 8 C2 4 5 1 8 1 Z M8 4 L10 8 L8 12 L6 8 Z" fill="#00ff9d"/>
+            </svg>
+            Ловкость
+          </button>
+          <button class="filter-btn" data-filter="intelligence">
+            <!-- SVG Интеллект -->
+            <svg class="attr-icon" viewBox="0 0 16 16" width="14" height="14">
+              <circle cx="8" cy="6" r="4" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+              <path d="M6 10 L6 14 M10 10 L10 14 M5 14 L11 14" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Интеллект
+          </button>
+          <button class="filter-btn" data-filter="universal">
+            <!-- SVG Универсал -->
+            <svg class="attr-icon" viewBox="0 0 16 16" width="14" height="14">
+              <polygon points="8,1 15,5 15,11 8,15 1,11 1,5" fill="none" stroke="#b44ffc" stroke-width="1.5"/>
+              <circle cx="8" cy="8" r="2" fill="#b44ffc"/>
+            </svg>
+            Универсал
+          </button>
+          <!-- Фильтры по роли -->
+          <div class="filter-divider"></div>
+          <button class="filter-btn" data-filter-role="carry">Carry</button>
+          <button class="filter-btn" data-filter-role="support">Support</button>
+          <button class="filter-btn" data-filter-role="mid">Mid</button>
+          <button class="filter-btn" data-filter-role="offlane">Offlane</button>
+          <!-- Поиск -->
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon-inline">
+              <circle cx="6" cy="6" r="4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              <path d="M9 9L12 12" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="heroes-search-bar" class="search-input-inline" placeholder="Поиск героя..." autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ← JS рендерит карточки героев в id="heroes-grid" -->
+      <div id="heroes-grid" class="grid heroes-grid">
+        <!-- JS вставляет карточки сюда (см. DotaasisEngine.heroes) -->
+        <!-- Скелетон-заглушки при загрузке -->
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+        <div class="hero-card skeleton"></div>
+      </div>
+
+      <!-- Пустой стейт -->
+      <div class="empty-state" id="heroes-empty" style="display:none;">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+          <path d="M20 32h24M32 20v24" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p>Герои не найдены</p>
+        <span>Попробуй другой фильтр или поисковый запрос</span>
+      </div>
+
+    </div><!-- /heroes-tab -->
+
+
+    <!-- ========================================================== -->
+    <!-- TAB: ПРЕДМЕТЫ                                               -->
+    <!-- ========================================================== -->
+    <div id="items-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-items">
+
+      <div class="section-header">
+        <div class="section-title-block">
+          <h1 class="section-title">
+            <span class="title-glow title-glow--blue">Предметы</span>
+            <span class="section-patch">Dota 2 · 7.41a</span>
+          </h1>
+          <p class="section-desc">Ситуационные предметы · Кем контрится · Против чего помогает</p>
+        </div>
+        <div class="filters-bar" id="items-filters">
+          <button class="filter-btn active" data-item-filter="all">Все</button>
+          <button class="filter-btn" data-item-filter="early_game">Early Game</button>
+          <button class="filter-btn" data-item-filter="mid_game">Mid Game</button>
+          <button class="filter-btn" data-item-filter="late_game">Late Game</button>
+          <button class="filter-btn" data-item-filter="situational">Ситуационные</button>
+          <div class="filter-divider"></div>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon-inline">
+              <circle cx="6" cy="6" r="4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              <path d="M9 9L12 12" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="items-search-bar" class="search-input-inline" placeholder="Поиск предмета..." autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ← JS рендерит карточки предметов в id="items-grid" -->
+      <div id="items-grid" class="grid items-grid">
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+        <div class="item-card skeleton"></div>
+      </div>
+
+      <div class="empty-state" id="items-empty" style="display:none;">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="16" y="16" width="32" height="32" rx="6" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+        </svg>
+        <p>Предметы не найдены</p>
+      </div>
+
+    </div><!-- /items-tab -->
+
+
+    <!-- ========================================================== -->
+    <!-- TAB: ДРАФТ ЦЕНТР                                           -->
+    <!-- ← JS использует все id внутри этого блока                  -->
+    <!-- ========================================================== -->
+    <div id="draft-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-draft">
+
+      <div class="section-header">
+        <div class="section-title-block">
+          <h1 class="section-title">
+            <span class="title-glow title-glow--red">Драфт Центр</span>
+            <span class="section-patch section-patch--ai">AI · Powered</span>
+          </h1>
+          <p class="section-desc">Анализ вражеского драфта · Контрпики · Ситуационные предметы</p>
+        </div>
+      </div>
+
+      <!-- Верхняя панель: загрузка скриншота -->
+      <div class="draft-screenshot-panel glass-panel">
+        <div class="screenshot-left">
+          <div class="panel-label">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="3" width="14" height="10" rx="2" stroke="#00d4ff" stroke-width="1.5"/>
+              <circle cx="8" cy="8" r="2.5" stroke="#00d4ff" stroke-width="1.5"/>
+              <path d="M5 3V2M11 3V2" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Загрузить скриншот драфта
+          </div>
+          <!-- ← JS читает файл через id="screenshot-upload" -->
+          <label class="upload-label" for="screenshot-upload">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 13V4M6 8L10 4L14 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 16h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Выбрать файл
+            <input type="file" id="screenshot-upload" accept="image/*" style="display:none;" />
+          </label>
+          <span class="upload-hint">PNG, JPG до 10MB · Скриншот экрана драфта</span>
+        </div>
+        <div class="screenshot-preview-wrap">
+          <!-- ← JS показывает превью сюда -->
+          <div id="screenshot-preview" class="screenshot-preview">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" opacity="0.3">
+              <rect x="4" y="6" width="32" height="24" rx="3" stroke="white" stroke-width="1.5"/>
+              <circle cx="14" cy="16" r="4" stroke="white" stroke-width="1.5"/>
+              <path d="M4 24L12 18L18 22L26 14L36 22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Превью скриншота</span>
+          </div>
+          <!-- ← JS вешает обработчик на id="recognize-btn" -->
+          <button id="recognize-btn" class="btn btn--secondary" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Распознать пики противника
+          </button>
+        </div>
+      </div>
+
+      <!-- Основная область драфта -->
+      <div class="draft-main-layout">
+
+        <!-- Левая колонка: поиск + таблица всех героев -->
+        <div class="draft-left">
+
+          <!-- Поиск героев -->
+          <div class="draft-search-block glass-panel">
+            <div class="panel-label">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="4.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <path d="M10.5 10.5L13 13" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Поиск героя
+            </div>
+            <!-- ← JS использует id="hero-search" -->
+            <div class="search-wrap search-wrap--large">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="search-icon-inline">
+                <circle cx="7" cy="7" r="4.5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                <path d="M10.5 10.5L13 13" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input type="text" id="hero-search" placeholder="Поиск героя..." autocomplete="off" class="search-input search-input--large" />
+            </div>
+
+            <!-- Фильтры по атрибуту для таблицы драфта -->
+            <div class="draft-attr-filters" id="draft-attr-filters">
+              <button class="attr-filter-btn active" data-draft-filter="all">Все</button>
+              <button class="attr-filter-btn" data-draft-filter="strength">
+                <svg viewBox="0 0 16 16" width="12" height="12"><path d="M8 1L11 5L15 5L12 8L13 13L8 10L3 13L4 8L1 5L5 5Z" fill="#e84040"/></svg>
+                Сила
+              </button>
+              <button class="attr-filter-btn" data-draft-filter="agility">
+                <svg viewBox="0 0 16 16" width="12" height="12"><path d="M8 1C11 1 14 4 14 8C14 12 11 15 8 15C5 15 2 12 2 8C2 4 5 1 8 1ZM8 4L10 8L8 12L6 8Z" fill="#00ff9d"/></svg>
+                Ловкость
+              </button>
+              <button class="attr-filter-btn" data-draft-filter="intelligence">
+                <svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="6" r="4" fill="none" stroke="#00d4ff" stroke-width="1.5"/><path d="M6 10L6 14M10 10L10 14M5 14L11 14" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Интел
+              </button>
+              <button class="attr-filter-btn" data-draft-filter="universal">
+                <svg viewBox="0 0 16 16" width="12" height="12"><polygon points="8,1 15,5 15,11 8,15 1,11 1,5" fill="none" stroke="#b44ffc" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#b44ffc"/></svg>
+                Универс.
+              </button>
+            </div>
+          </div>
+
+          <!-- Таблица всех героев для выбора -->
+          <!-- ← JS рендерит строки в id="all-heroes-table" tbody -->
+          <div class="draft-heroes-table-wrap glass-panel">
+            <div class="panel-label">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="1" y="1" width="14" height="14" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
+                <path d="M1 5h14M1 9h14M5 5v9M10 5v9" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+              </svg>
+              Все герои — нажми для добавления в команду
+            </div>
+            <div class="table-scroll-wrap">
+              <table class="heroes-table" id="all-heroes-table">
+                <thead>
+                  <tr>
+                    <th class="th-img"></th>
+                    <th class="th-name" data-sort="name">Герой <span class="sort-arrow">↕</span></th>
+                    <th class="th-attr" data-sort="attr">Атр.</th>
+                    <th class="th-role" data-sort="role">Роль</th>
+                    <th class="th-complexity">Сложн.</th>
+                    <th class="th-action"></th>
+                  </tr>
+                </thead>
+                <!-- ← JS вставляет строки сюда -->
+                <tbody id="all-heroes-tbody">
+                  <!-- строки генерируются JS из HEROES -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /draft-left -->
+
+        <!-- Правая колонка: моя команда + результаты -->
+        <div class="draft-right">
+
+          <!-- Блок «Моя команда» — 5 слотов -->
+          <div class="my-team-block glass-panel">
+            <div class="panel-label">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="5" r="3" stroke="#00ff9d" stroke-width="1.5"/>
+                <path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#00ff9d" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Вражеская команда
+            </div>
+            <!-- ← JS управляет слотами через id="team-slots" -->
+            <div class="team-slots" id="team-slots">
+              <!-- Слот 1 -->
+              <div class="team-slot empty" id="slot-0" data-slot="0">
+                <div class="slot-img-wrap">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                    <circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="slot-name">Слот 1</span>
+                <button class="slot-remove" data-remove="0" style="display:none;">✕</button>
+              </div>
+              <!-- Слот 2 -->
+              <div class="team-slot empty" id="slot-1" data-slot="1">
+                <div class="slot-img-wrap">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                    <circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="slot-name">Слот 2</span>
+                <button class="slot-remove" data-remove="1" style="display:none;">✕</button>
+              </div>
+              <!-- Слот 3 -->
+              <div class="team-slot empty" id="slot-2" data-slot="2">
+                <div class="slot-img-wrap">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                    <circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="slot-name">Слот 3</span>
+                <button class="slot-remove" data-remove="2" style="display:none;">✕</button>
+              </div>
+              <!-- Слот 4 -->
+              <div class="team-slot empty" id="slot-3" data-slot="3">
+                <div class="slot-img-wrap">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                    <circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="slot-name">Слот 4</span>
+                <button class="slot-remove" data-remove="3" style="display:none;">✕</button>
+              </div>
+              <!-- Слот 5 -->
+              <div class="team-slot empty" id="slot-4" data-slot="4">
+                <div class="slot-img-wrap">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                    <circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/>
+                    <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="slot-name">Слот 5</span>
+                <button class="slot-remove" data-remove="4" style="display:none;">✕</button>
+              </div>
+            </div>
+
+            <div class="team-actions">
+              <!-- ← JS вешает click на id="analyze-draft-btn" -->
+              <button id="analyze-draft-btn" class="btn btn--primary btn--large">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 2L16 6V12L9 16L2 12V6L9 2Z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Подобрать контр-пики
+              </button>
+              <button id="clear-draft-btn" class="btn btn--ghost">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 2L14 14M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Очистить
+              </button>
+            </div>
+          </div>
+
+          <!-- Блок результатов анализа -->
+          <!-- ← JS пишет результаты в id="draft-results" -->
+          <div id="draft-results" class="draft-results glass-panel" style="display:none;">
+
+            <!-- Шапка результатов -->
+            <div class="results-header">
+              <div class="panel-label">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1L15 5V11L8 15L1 11V5L8 1Z" fill="rgba(0,255,157,0.15)" stroke="#00ff9d" stroke-width="1.3"/>
+                  <path d="M5 8L7 10L11 6" stroke="#00ff9d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Анализ драфта
+              </div>
+              <!-- Оценка угрозы -->
+              <div class="threat-meter" id="threat-meter">
+                <span class="threat-label">Угроза:</span>
+                <div class="threat-bar">
+                  <div class="threat-fill" id="threat-fill" style="width:0%"></div>
+                </div>
+                <span class="threat-score" id="threat-score">—</span>
+              </div>
+            </div>
+
+            <!-- Оракул -->
+            <div class="oracle-block" id="oracle-block">
+              <div class="oracle-avatar">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="14" fill="rgba(0,212,255,0.1)" stroke="#00d4ff" stroke-width="1.5"/>
+                  <circle cx="16" cy="12" r="5" stroke="#00d4ff" stroke-width="1.5"/>
+                  <path d="M8 26c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="oracle-text">
+                <!-- ← JS пишет сюда фразы Оракула -->
+                <div class="oracle-name">Оракул говорит:</div>
+                <div id="oracle-comment" class="oracle-comment">Выбери вражеский пик...</div>
+              </div>
+            </div>
+
+            <!-- Теги ситуации -->
+            <div class="situation-tags" id="situation-tags">
+              <!-- ← JS вставляет теги ситуаций -->
+            </div>
+
+            <!-- Контр-герои -->
+            <div class="results-section">
+              <div class="results-section-title">Контр-пики (топ-5)</div>
+              <!-- ← JS рендерит карточки контров сюда -->
+              <div class="counterpicks-list" id="counterpicks-list">
+              </div>
+            </div>
+
+            <!-- Рекомендованные предметы -->
+            <div class="results-section">
+              <div class="results-section-title">Рекомендованные предметы</div>
+              <!-- ← JS рендерит предметы сюда -->
+              <div class="recommended-items" id="recommended-items">
+              </div>
+            </div>
+
+          </div><!-- /draft-results -->
+
+          <!-- Пустой стейт для драфта -->
+          <div class="draft-empty-hint" id="draft-empty-hint">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.05)" stroke-width="2"/>
+              <path d="M40 20v20M40 40L55 55" stroke="rgba(0,255,157,0.2)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="40" cy="40" r="8" stroke="rgba(0,255,157,0.2)" stroke-width="2"/>
+              <path d="M25 25L55 55M55 25L25 55" stroke="rgba(255,45,85,0.1)" stroke-width="1"/>
+            </svg>
+            <p>Добавь до 5 героев врага</p>
+            <span>Нажми на героя в таблице слева → кнопка «Подобрать контр-пики»</span>
+          </div>
+
+        </div><!-- /draft-right -->
+
+      </div><!-- /draft-main-layout -->
+
+    </div><!-- /draft-tab -->
+
+
+    <!-- ========================================================== -->
+    <!-- TAB: ТАБЛИЦА ВИНРЕЙТА                                      -->
+    <!-- ========================================================== -->
+    <div id="winrate-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-winrate">
+
+      <div class="section-header">
+        <div class="section-title-block">
+          <h1 class="section-title">
+            <span class="title-glow">Таблица Винрейта</span>
+            <span class="section-patch">OpenDota · 7.41a</span>
+          </h1>
+          <p class="section-desc">Данные про-матчей и паблик-игр · Нажми на заголовок для сортировки</p>
+        </div>
+        <div class="filters-bar winrate-topbar">
+          <!-- Переключатель ранг/про -->
+          <div class="toggle-group" id="winrate-mode-toggle">
+            <button class="toggle-btn active" data-mode="pub">Паблик</button>
+            <button class="toggle-btn" data-mode="pro">Про-сцена</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="search-icon-inline">
+              <circle cx="6" cy="6" r="4" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              <path d="M9 9L12 12" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="winrate-search" class="search-input-inline" placeholder="Поиск..." autocomplete="off" />
+          </div>
+          <button id="winrate-refresh-btn" class="btn btn--ghost btn--sm">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M7 2L10 2L10 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Обновить
+          </button>
+        </div>
+      </div>
+
+      <!-- Плашки топ статистики -->
+      <div class="winrate-stats-row" id="winrate-stats-row">
+        <div class="stat-pill">
+          <span class="stat-pill-label">Топ Винрейт</span>
+          <!-- ← JS вставляет данные -->
+          <span class="stat-pill-value" id="stat-top-winrate">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Топ Пикрейт</span>
+          <span class="stat-pill-value" id="stat-top-pickrate">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Топ Банрейт</span>
+          <span class="stat-pill-value" id="stat-top-banrate">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Всего матчей</span>
+          <span class="stat-pill-value stat-pill-value--dim" id="stat-total-matches">—</span>
+        </div>
+      </div>
+
+      <!-- ← JS рендерит таблицу в id="winrate-table-wrap" -->
+      <div class="winrate-table-wrap glass-panel" id="winrate-table-wrap">
+        <div class="table-scroll-wrap">
+          <!-- ← JS вставляет/обновляет tbody этой таблицы -->
+          <table class="winrate-table" id="winrate-table">
+            <thead id="winrate-thead">
+              <tr>
+                <th class="th-rank">#</th>
+                <th class="th-img"></th>
+                <th class="th-name sortable" data-col="name">
+                  Герой
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down">▼</span></span>
+                </th>
+                <th class="th-attr sortable" data-col="attr">
+                  Атр.
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down">▼</span></span>
+                </th>
+                <th class="th-winrate sortable active-sort" data-col="winrate">
+                  Winrate
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down active">▼</span></span>
+                </th>
+                <th class="th-pickrate sortable" data-col="pickrate">
+                  Pickrate
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down">▼</span></span>
+                </th>
+                <th class="th-banrate sortable" data-col="banrate">
+                  Banrate
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down">▼</span></span>
+                </th>
+                <th class="th-matches sortable" data-col="matches">
+                  Matches
+                  <span class="sort-arrows"><span class="sa-up">▲</span><span class="sa-down">▼</span></span>
+                </th>
+                <th class="th-trend">Тренд</th>
+              </tr>
+            </thead>
+            <!-- ← JS заполняет tbody -->
+            <tbody id="winrate-tbody">
+              <!-- Скелетон-строки -->
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+              <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Пагинация / инфо -->
+        <div class="table-footer" id="winrate-table-footer">
+          <span class="table-info" id="winrate-table-info">Загрузка данных из OpenDota API...</span>
+          <div class="pagination" id="winrate-pagination">
+            <!-- ← JS управляет пагинацией -->
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /winrate-tab -->
+
+  </main><!-- /content-area -->
+
+
+  <!-- ============================================================ -->
+  <!-- МОДАЛЬНОЕ ОКНО — ГЕРОЙ                                       -->
+  <!-- ← JS открывает через id="hero-modal"                        -->
+  <!-- ============================================================ -->
+  <div id="hero-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-hero-name" style="display:none;">
+    <div class="modal-container modal-hero">
+      <button class="modal-close" id="hero-modal-close" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M4 4L16 16M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Шапка героя -->
+      <div class="modal-hero-header">
+        <div class="modal-hero-img-wrap">
+          <!-- ← JS вставляет src -->
+          <img id="modal-hero-img" class="modal-hero-img" src="" alt="" loading="lazy" />
+          <div class="modal-hero-img-glow"></div>
+        </div>
+        <div class="modal-hero-meta">
+          <div class="modal-hero-attr" id="modal-hero-attr">
+            <!-- ← JS вставляет SVG атрибута -->
+          </div>
+          <h2 class="modal-hero-name" id="modal-hero-name">—</h2>
+          <div class="modal-hero-localname" id="modal-hero-localname">—</div>
+          <div class="modal-hero-roles" id="modal-hero-roles">
+            <!-- ← JS вставляет теги ролей -->
+          </div>
+          <div class="modal-hero-stats-row" id="modal-hero-stats-row">
+            <!-- ← JS вставляет winrate/pickrate из OpenDota -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Тело модала -->
+      <div class="modal-body">
+
+        <!-- Механики -->
+        <div class="modal-section">
+          <div class="modal-section-title">Механики</div>
+          <div class="modal-mechanics" id="modal-hero-mechanics">
+            <!-- ← JS вставляет теги механик -->
+          </div>
+        </div>
+
+        <!-- Сильные стороны -->
+        <div class="modal-section">
+          <div class="modal-section-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1L9 5H13L10 8L11 12L7 10L3 12L4 8L1 5H5L7 1Z" fill="#00ff9d"/>
+            </svg>
+            Сильные стороны
+          </div>
+          <div class="modal-strengths" id="modal-hero-strengths">
+            <!-- ← JS вставляет список -->
+          </div>
+        </div>
+
+        <!-- Контр-пики -->
+        <div class="modal-section">
+          <div class="modal-section-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2L12 12M12 2L2 12" stroke="#ff2d55" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Контр-пики
+          </div>
+          <div class="modal-counters" id="modal-hero-counters">
+            <!-- ← JS вставляет список контров из COUNTERPICKS -->
+          </div>
+        </div>
+
+        <!-- Рекомендованные предметы -->
+        <div class="modal-section">
+          <div class="modal-section-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="2" stroke="#00d4ff" stroke-width="1.5"/>
+              <path d="M7 4v6M4 7h6" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Рекомендованные предметы
+          </div>
+          <div class="modal-items" id="modal-hero-items">
+            <!-- ← JS вставляет предметы из ITEMS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Кнопка добавить в драфт -->
+      <div class="modal-footer">
+        <button class="btn btn--primary" id="modal-add-to-draft-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Добавить в Драфт Центр
+        </button>
+        <button class="btn btn--ghost" id="hero-modal-close-footer">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- МОДАЛЬНОЕ ОКНО — ПРЕДМЕТ                                     -->
+  <!-- ← JS открывает через id="item-modal"                        -->
+  <!-- ============================================================ -->
+  <div id="item-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-item-name" style="display:none;">
+    <div class="modal-container modal-item">
+      <button class="modal-close" id="item-modal-close" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M4 4L16 16M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="modal-item-header">
+        <div class="modal-item-img-wrap">
+          <!-- ← JS вставляет src -->
+          <img id="modal-item-img" class="modal-item-img" src="" alt="" loading="lazy" />
+        </div>
+        <div class="modal-item-meta">
+          <h2 class="modal-item-name" id="modal-item-name">—</h2>
+          <div class="modal-item-cost" id="modal-item-cost">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="6" fill="#e8c97a" opacity="0.8"/>
+              <text x="7" y="10" text-anchor="middle" font-size="7" fill="#0a0a1f" font-weight="bold">G</text>
+            </svg>
+            <span id="modal-item-cost-val">—</span> золота
+          </div>
+          <div class="modal-item-tags" id="modal-item-tags">
+            <!-- ← JS вставляет теги -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <div class="modal-section-title">Описание</div>
+          <p id="modal-item-desc" class="modal-text">—</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1L9 5H13L10 8L11 12L7 10L3 12L4 8L1 5H5L7 1Z" fill="#00ff9d"/>
+            </svg>
+            В чём силён
+          </div>
+          <div id="modal-item-strengths" class="modal-list">—</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2L12 12M12 2L2 12" stroke="#ff2d55" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Чем/кем контрится
+          </div>
+          <div id="modal-item-counters" class="modal-list">—</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Ситуации использования</div>
+          <div id="modal-item-situations" class="modal-tags">—</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn--ghost" id="item-modal-close-footer">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- ГЛОБАЛЬНЫЙ ЛОАДЕР                                           -->
+  <!-- ← JS показывает/скрывает через id="global-loader"           -->
+  <!-- ============================================================ -->
+  <div id="global-loader" class="global-loader" style="display:none;">
+    <div class="loader-inner">
+      <div class="loader-hexagon">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+          <polygon points="30,4 54,16 54,44 30,56 6,44 6,16" fill="none" stroke="url(#loaderGrad)" stroke-width="2">
+            <animateTransform attributeName="transform" type="rotate" from="0 30 30" to="360 30 30" dur="3s" repeatCount="indefinite"/>
+          </polygon>
+          <circle cx="30" cy="30" r="8" fill="rgba(0,255,157,0.2)" stroke="#00ff9d" stroke-width="1.5">
+            <animate attributeName="r" values="8;12;8" dur="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <defs>
+            <linearGradient id="loaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00ff9d"/>
+              <stop offset="100%" stop-color="#00d4ff"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="loader-text" id="loader-text">Загрузка данных...</div>
+      <div class="loader-sub">OpenDota API · Steam/Valve</div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- TOAST-УВЕДОМЛЕНИЯ                                            -->
+  <!-- ← JS создаёт тосты внутри id="toast-container"              -->
+  <!-- ============================================================ -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+
+</div><!-- /app -->
+
+<!-- ============================================================ -->
+<!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ                                         -->
+<!-- ← ТВОЙ JavaScript подключается здесь                         -->
+<!-- ← window.DOTAASIS и window.DotaAPI доступны после загрузки   -->
+<!-- ============================================================ -->
+<script src="app.js"></script>
+<!-- После app.js можно подключить ui.js, если ты разделил логику: -->
+<!-- <script src="ui.js"></script> -->
+
+</body>
+</html>
