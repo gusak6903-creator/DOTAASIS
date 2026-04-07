@@ -1,22 +1,24 @@
 /**
- * ==========================================
- * DOTAASIS: EMERALD MOSS THEME
- * ==========================================
+ * =====================================================================
+ * DOTAASIS EMERALD MOSS EDITION - СТИЛИ И АНИМАЦИИ
+ * Строгое соответствие ТЗ: Glassmorphism, Неон, Анимации Леса
+ * =====================================================================
  */
 
 :root {
-    /* Палитра Emerald Moss */
+    /* Emerald Moss Palette */
     --bg-dark: #050805;
-    --bg-panel: rgba(10, 25, 15, 0.4);
+    --panel-bg: rgba(5, 12, 8, 0.55);
     --accent-green: #2ecc71;
-    --accent-glow: rgba(46, 204, 113, 0.5);
-    --dark-green: #1e5d3b;
-    --text-main: #e0f2e9;
-    --text-muted: #8abeb0;
-    --border-glass: rgba(46, 204, 113, 0.2);
+    --accent-dark: #1e5d3b;
+    --accent-glow: rgba(46, 204, 113, 0.4);
+    --border-glass: rgba(46, 204, 113, 0.15);
+    --border-hover: rgba(46, 204, 113, 0.6);
+    --text-primary: #e0f2e9;
+    --text-secondary: #8abeb0;
+    --danger: #e74c3c;
     
-    /* Типографика */
-    --font-ui: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-main: 'Segoe UI', system-ui, sans-serif;
 }
 
 * {
@@ -27,359 +29,491 @@
 
 body {
     background-color: var(--bg-dark);
-    color: var(--text-main);
-    font-family: var(--font-ui);
+    color: var(--text-primary);
+    font-family: var(--font-main);
     height: 100vh;
     overflow: hidden;
     position: relative;
 }
 
 /* ==========================================
- * ФОНОВЫЕ ЭФФЕКТЫ (Дыхание леса и частицы)
+ * КАСТОМНЫЕ СКРОЛЛБАРЫ
  * ========================================== */
-.ambient-glow {
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-dark);
+    border-radius: 4px;
+    border: 1px solid var(--border-glass);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-green);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ==========================================
+ * ФОНОВЫЕ ЭФФЕКТЫ (Дыхание леса)
+ * ========================================== */
+.emerald-glow-overlay {
     position: absolute;
-    top: -20%;
-    left: -10%;
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(circle, var(--dark-green) 0%, transparent 60%);
+    top: -30%; left: -20%;
+    width: 80vw; height: 80vw;
+    background: radial-gradient(circle, var(--accent-dark) 0%, transparent 50%);
     opacity: 0.15;
     z-index: -2;
-    animation: breathe 10s infinite alternate ease-in-out;
+    animation: forest-breath 12s infinite alternate ease-in-out;
+    pointer-events: none;
 }
 
-.particles {
+@keyframes forest-breath {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.1; }
+    100% { transform: scale(1.1) translate(2%, 2%); opacity: 0.25; filter: hue-rotate(5deg); }
+}
+
+.forest-ambient-particles {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(var(--accent-green) 1px, transparent 1px);
-    background-size: 50px 50px;
-    opacity: 0.03;
+    width: 100%; height: 100%;
     z-index: -1;
-    animation: drift 60s linear infinite;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-@keyframes breathe {
-    0% { transform: scale(1); opacity: 0.1; }
-    100% { transform: scale(1.1); opacity: 0.25; }
+.forest-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background-color: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px var(--accent-glow);
+    opacity: 0;
+    animation: float-up linear infinite;
 }
 
-@keyframes drift {
-    0% { background-position: 0 0; }
-    100% { background-position: 1000px 1000px; }
-}
-
-/* ==========================================
- * ЛЕЙАУТ (Grid)
- * ========================================== */
-.app-container {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    height: 100vh;
-    gap: 20px;
-    padding: 20px;
+@keyframes float-up {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
 }
 
 /* ==========================================
- * GLASSMORPHISM УТИЛИТЫ
+ * GLASSMORPHISM КЛАССЫ
  * ========================================== */
 .glass-panel {
-    background: var(--bg-panel);
+    background: var(--panel-bg);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--border-glass);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
 }
 
 /* ==========================================
- * БОКОВАЯ ПАНЕЛЬ (Sidebar)
+ * ЛЕЙАУТ ПРИЛОЖЕНИЯ
  * ========================================== */
-.sidebar {
+.app-wrapper {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+    padding: 15px;
+    gap: 20px;
+}
+
+/* БОКОВАЯ ПАНЕЛЬ */
+.emerald-sidebar {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
-.brand h1 {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--accent-green);
-    text-shadow: 0 0 10px var(--accent-glow);
-    margin-bottom: 5px;
-}
-
-.brand h1 span {
-    color: var(--text-main);
-}
-
-.brand p {
-    font-size: 12px;
-    color: var(--text-muted);
+.brand-header {
     margin-bottom: 25px;
+    text-align: center;
 }
 
-/* ==========================================
- * VISION MODE UI
- * ========================================== */
-.vision-mode-container {
-    position: relative;
-    margin-bottom: 20px;
+.brand-header h1 {
+    font-size: 26px;
+    letter-spacing: 2px;
+    font-weight: 800;
 }
 
-.btn-emerald {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--dark-green), var(--accent-green));
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+.neon-text {
+    color: var(--accent-green);
+    text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-green);
+}
+
+.patch-info {
+    font-size: 11px;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-top: 5px;
 }
 
-.btn-emerald:hover:not(.disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
-}
-
-.btn-emerald.disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-/* Эффект сканирования (Оверлей) */
-.scan-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(5, 8, 5, 0.8);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    z-index: 10;
-}
-
-.scan-overlay.hidden {
-    display: none;
-}
-
-.scan-line {
-    position: absolute;
-    width: 100%;
-    height: 3px;
-    background: var(--accent-green);
-    box-shadow: 0 0 15px var(--accent-green);
-    animation: scan 1.5s linear infinite;
-}
-
-@keyframes scan {
-    0% { top: 0; opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
-}
-
-.scan-overlay p {
-    color: var(--accent-green);
-    font-weight: bold;
-    z-index: 2;
-    text-shadow: 0 0 5px var(--accent-glow);
-}
-
-/* ==========================================
- * ПОИСК И СПИСОК ГЕРОЕВ
- * ========================================== */
-.search-container {
-    margin-bottom: 20px;
-}
-
-.glass-input {
-    width: 100%;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-glass);
-    border-radius: 8px;
-    color: var(--text-main);
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.glass-input:focus {
-    border-color: var(--accent-green);
-    background: rgba(46, 204, 113, 0.05);
-}
-
-.hero-list {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 5px;
+/* НАВИГАЦИЯ */
+.main-navigation {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 25px;
 }
 
-/* Стилизация скроллбара под Emerald */
-.hero-list::-webkit-scrollbar {
-    width: 6px;
-}
-.hero-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-}
-.hero-list::-webkit-scrollbar-thumb {
-    background: var(--dark-green);
-    border-radius: 3px;
-}
-
-.hero-card {
-    padding: 12px;
+.nav-tab {
+    background: transparent;
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: left;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
-.hero-card:hover {
+.nav-tab:hover {
     background: rgba(46, 204, 113, 0.1);
     border-color: var(--accent-green);
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
-.hero-name {
-    font-weight: bold;
-    color: var(--text-main);
-    margin-bottom: 4px;
+.nav-tab.active {
+    background: linear-gradient(90deg, rgba(30,93,59,0.8), transparent);
+    border-left: 4px solid var(--accent-green);
+    color: var(--accent-green);
 }
 
-.hero-role {
-    font-size: 12px;
-    color: var(--text-muted);
+/* ПОИСК */
+.live-search-wrapper { margin-top: auto; }
+.glass-input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all 0.3s;
+}
+.glass-input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
 /* ==========================================
- * ПРАВАЯ ПАНЕЛЬ И РЕЗУЛЬТАТЫ
+ * VISION MODE (OCR СИМУЛЯЦИЯ)
  * ========================================== */
-.main-content {
-    display: flex;
-    flex-direction: column;
-    padding: 30px;
-    overflow-y: auto;
-}
-
-.draft-header {
+.vision-scanner-section {
+    margin-bottom: 25px;
     border-bottom: 1px solid var(--border-glass);
-    padding-bottom: 20px;
+    padding-bottom: 25px;
+}
+
+.emerald-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent-green));
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.emerald-btn:hover:not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(46, 204, 113, 0.6);
+}
+
+.emerald-btn.disabled {
+    background: #2a2a2a;
+    color: #555;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.danger-btn {
+    padding: 10px 20px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.danger-btn:hover { background: var(--danger); color: #fff; }
+
+.vision-progress {
+    position: relative;
+    margin-top: 15px;
+    padding: 15px;
+    background: #000;
+    border: 1px solid var(--accent-green);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 120px;
+}
+
+.hidden { display: none !important; }
+
+/* Сканирующая линия */
+.scan-line {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: #fff;
+    box-shadow: 0 0 10px 2px var(--accent-green);
+    animation: scanning 1.5s linear infinite;
+    z-index: 5;
+}
+
+@keyframes scanning {
+    0% { top: -5%; }
+    100% { top: 105%; }
+}
+
+/* Матричный дождь */
+.matrix-rain {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+.matrix-drop {
+    position: absolute;
+    color: var(--accent-green);
+    font-family: monospace;
+    font-size: 14px;
+    opacity: 0;
+    animation: fall linear infinite;
+}
+@keyframes fall {
+    0% { top: -10%; opacity: 1; text-shadow: 0 0 5px var(--accent-green); }
+    100% { top: 110%; opacity: 0; }
+}
+
+.scan-status-text {
+    position: relative; z-index: 2;
+    font-size: 12px; color: var(--accent-green);
+    margin-bottom: 8px; font-family: monospace;
+}
+.scan-progress-bar {
+    position: relative; z-index: 2;
+    height: 4px; background: rgba(255,255,255,0.1);
+    border-radius: 2px; margin-bottom: 8px;
+}
+.scan-progress-fill {
+    height: 100%; width: 0%;
+    background: var(--accent-green);
+    box-shadow: 0 0 10px var(--accent-green);
+    transition: width 0.3s linear;
+}
+.scan-log {
+    position: relative; z-index: 2;
+    font-family: monospace; font-size: 10px;
+    color: var(--text-secondary);
+    height: 50px; overflow-y: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+}
+
+/* ==========================================
+ * ПРАВАЯ ПАНЕЛЬ И СЕТКИ
+ * ========================================== */
+.main-content-area {
+    position: relative;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.section-header {
     margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-glass);
 }
 
-.draft-header h2 {
-    font-weight: 300;
-    margin-bottom: 15px;
+.hero-grid, .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
 }
 
-.selected-enemies {
+/* КАРТОЧКА ГЕРОЯ И ТУЛТИПЫ */
+.hero-card, .item-card {
+    position: relative;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    overflow: visible; /* Для тултипа */
+}
+
+.hero-card:hover, .item-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(46, 204, 113, 0.2);
+}
+
+.hero-card.selected-in-draft {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid var(--accent-green);
+    box-shadow: inset 0 0 15px var(--accent-glow);
+}
+
+.hero-name, .item-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.winrate-badge {
+    font-size: 10px;
+    background: rgba(0,0,0,0.6);
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-top: 5px;
+    color: var(--accent-green);
+    border: 1px solid var(--border-glass);
+}
+
+/* Сложный Тултип */
+.hero-tooltip, .item-tooltip {
+    position: absolute;
+    bottom: 110%; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 260px;
+    padding: 15px;
+    background: rgba(5, 12, 8, 0.95);
+    border: 1px solid var(--accent-green);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 100;
+    text-align: left;
+    font-size: 12px;
+}
+
+.hero-card:hover .hero-tooltip, 
+.item-card:hover .item-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.counter-items-box {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(231, 76, 60, 0.1);
+    border-left: 2px solid var(--danger);
+    border-radius: 4px;
+}
+
+/* ==========================================
+ * ДРАФТ И АНАЛИТИКА
+ * ========================================== */
+.draft-header {
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.draft-slots-container {
     display: flex;
     gap: 15px;
     margin-bottom: 20px;
 }
 
-.enemy-slot {
+.draft-slot {
     flex: 1;
-    height: 60px;
-    border-radius: 8px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    border-radius: 8px;
+    position: relative;
     font-weight: bold;
-    transition: all 0.3s;
 }
 
-.enemy-slot.empty {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed var(--text-muted);
-    color: var(--text-muted);
+.draft-slot.empty {
+    border: 1px dashed var(--text-secondary);
+    color: var(--text-secondary);
 }
 
-.enemy-slot.filled {
-    background: rgba(46, 204, 113, 0.1);
+.draft-slot.filled {
     border: 1px solid var(--accent-green);
-    color: var(--accent-green);
-    box-shadow: inset 0 0 10px rgba(46, 204, 113, 0.1);
+    background: rgba(46, 204, 113, 0.1);
+    color: #fff;
+    text-shadow: 0 0 5px var(--accent-green);
 }
 
-.analysis-result {
-    flex-grow: 1;
+.remove-btn {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 20px; height: 20px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--danger);
+    cursor: pointer;
+}
+.remove-btn:hover { background: var(--danger); color: #fff; }
+
+.mt-20 { margin-top: 20px; }
+
+/* Отчет аналитики */
+.analysis-report {
+    animation: fadeIn 0.5s ease;
+}
+
+.counter-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.counter-block {
+    padding: 20px;
+    border-left: 3px solid var(--accent-green);
+}
+
+.item-highlight {
+    color: #f1c40f;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loader-emerald {
     display: flex;
     flex-direction: column;
-}
-
-.placeholder-text {
-    margin: auto;
-    color: var(--text-muted);
-    font-style: italic;
-    text-align: center;
-}
-
-/* Анимация загрузки */
-.loader {
-    margin: auto;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
     color: var(--accent-green);
-    font-weight: bold;
-    animation: pulse 1.5s infinite;
 }
 
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; text-shadow: 0 0 10px var(--accent-glow); }
-    100% { opacity: 0.5; }
+.spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(46, 204, 113, 0.2);
+    border-top-color: var(--accent-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
 }
 
-/* ==========================================
- * ТУЛТИПЫ И КАРТОЧКИ ПРЕДМЕТОВ (База для расширения)
- * ========================================== */
-.item-tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted var(--accent-green);
-    cursor: help;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.item-tooltip .tooltip-text {
-    visibility: hidden;
-    width: 250px;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    text-align: left;
-    border-radius: 6px;
-    padding: 10px;
-    position: absolute;
-    z-index: 100;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -125px;
-    border: 1px solid var(--accent-green);
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-.item-tooltip:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-}
-
-.tooltip-text .utility-short {
-    color: var(--accent-green);
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
+/* Дополнительные медиа-запросы для респонсивности */
+@media (max-width: 1024px) {
+    .app-wrapper { grid-template-columns: 250px 1fr; }
 }
